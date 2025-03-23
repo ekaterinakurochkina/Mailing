@@ -48,7 +48,7 @@ class Sending(models.Model):           # Рассылка
     status = models.CharField(max_length=10,verbose_name='Статус', choices=STATUS_CHOICES, default='created')           # статус
     message = models.ForeignKey(Message, related_name="message", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Сообщение")           # Сообщение
     recipient = models.ManyToManyField(MailingRecipient, verbose_name='Получатели')                      # Получатели (связь с моделью Получатель)
-    owner = models.ForeignKey(User, verbose_name='Владелец', help_text='Укажите владельца рассылки', blank=True, null=True, on_delete=models.SET_NULL)
+    # owner = models.ForeignKey(User, verbose_name='Владелец', help_text='Укажите владельца рассылки', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
