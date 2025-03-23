@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление пользователя{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <main>
+        <section class="text-center container">
+            <div class="row py-lg-0">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Удаление пользователя</h1>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% if object.owner == user or user.has_perm("users.can_canceled_sending") %}
+    <p>Вы уверены, что хотите удалить рассылку "{{ object.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a href="{% url 'mailing:sending_list' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+    {% endif %}
+    <p>У Вас нет прав для удаления этой рассылки</p>
+    <a href="{% url 'mailing:sending_list' %}" class="btn btn-primary">Вернуться</a>
+
+    {% endblock %}

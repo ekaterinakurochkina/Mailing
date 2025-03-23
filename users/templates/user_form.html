@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <main>
+        <section class="text-center container">
+            <div class="row py-lg-0">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Вход на сайт</h1>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="container">
+        <form class="row" method="post" enctype="multipart/form-data">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Зарегистрироваться
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endblock %}
