@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Сообщение{% endblock %}
+{% block content %}
+<h2 style="margin-left: 300px;">Редактировать сообщение</h2>
+<div class="album py-5 bg-body-tertiary">
+
+    <div class="container">
+      <div class="row">
+      <div class="col-12 ">
+      <div class="container">
+        <form class="row" method="post" enctype="multipart/form-data">
+          <div class="card">
+            <div class="card-body">
+          {% csrf_token %}
+          <div class="col-6">
+            {% for field in form %}
+              <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                  <small class="text-danger">{{ field.errors.0 }}</small>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+              {% if object %}
+              Сохранить
+              {% else %}
+              Создать
+              {% endif %}
+            </button>
+            <a href="{% url 'mailing:sending_list' %}" class="btn btn-secondary">Отмена</a>
+          </div>
+              </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+    </div>
+    </div>
+</div>
+
+{% endblock %}
