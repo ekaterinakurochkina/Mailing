@@ -21,6 +21,7 @@ class SendingForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Sending
         fields = "__all__"
+        exclude = ("owner",)
     def create_owner(self):
         owner = self.request.user
         return owner
