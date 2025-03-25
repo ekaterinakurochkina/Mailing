@@ -1,10 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+<title>Список получателей</title>
+{% block content %}
+<div class="container-fluid">
+    <main>
+        <section class="text-center container">
+            <div class="row py-lg-0">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Список получателей рассылок</h1>
 
-</body>
-</html>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<section class="py-2 text-center container">
+    <div class="row py-lg-0">
+        <p>Уникальных получателей: {{ unique_recipients }}</p>
+
+    </div>
+</section>
+<p></p>
+
+<div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+    <a class="btn" button
+       style="width: 540px; background-color: #4CAF50; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
+       href="{% url 'mailing:recipient_create' %}">Добавить адрес получателя</a>
+
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th style="width: 200px"></th>
+        <th style="width: 70px;background-color: #f2f2f2;">id</th>
+        <th style="width: 300px; padding-left: 10px; background-color: #f2f2f2;">Email</th>
+        <th style="width: 400px; padding-left: 10px; background-color: #f2f2f2;">Имя</th>
+        <th style="background-color: #f2f2f2;">Детали</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for message in messages %}
+    <tr>
+        <td style="width: 200px;"></td>
+        <td style="width: 70px;">{{ recipient.id }}</td>
+        <td style="width: 300px; padding-left: 10px; ">{{ recipient.email }}</td>
+        <td style="width: 400px;padding-left: 10px;">{{ recipient.name }}</td>
+        <td><a class="btn btn-primary " button style="width: 150px;" role="button"
+               href="{% url 'mailing:recipient_detail' recipient.id %}">Посмотреть</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+<p></p>
+<div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+    <a class="btn btn-primary " button
+       style="width: 540px; ; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
+       href="{% url 'mailing:home' %}">На главную</a>
+
+</div>
+
+{% endblock %}l>
+>
