@@ -36,6 +36,14 @@ class SendingCreateView(LoginRequiredMixin, CreateView):
         sending.save()
         return super().form_valid(form)
 
+    # def form_valid(self, form):
+    #     recipient = form.save()
+    #     recipient.owner = self.request.user
+    #     recipient.save()
+    #     return super().form_valid(form)
+
+    def test_func(self):
+        return self.request.user.groups.filter(name="Пользователь").exists() or self.request.user.is_superuser
 
 class SendingListView(LoginRequiredMixin, ListView):
     model = Sending
@@ -49,12 +57,19 @@ class SendingListView(LoginRequiredMixin, ListView):
         context["unique_recipients"] = MailingRecipient.objects.distinct().count()
         return context
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.has_perm("mailing.can_canceled_sending"):
-            return get_object_from_cache()  # подключаем к представлению функцию обращения к кешу
-        else:
-            return Sending.objects.filter(owner=user)
+    def get_queryset(self, *args, **kwargs):
+        if self.request.user.is_superuser or self.request.user.groups.filter(name="Менеджер").exists():
+            return super().get_queryset()
+        elif self.request.user.groups.filter(name="Пользователь").exists():
+            return super().get_queryset().filter(owner=self.request.user)
+        raise PermissionDenied
+
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     if user.has_perm("mailing.can_canceled_sending"):
+    #         return get_object_from_cache()  # подключаем к представлению функцию обращения к кешу
+    #     else:
+    #         return Sending.objects.filter(owner=user)
 
 
 class SendingDetailView(LoginRequiredMixin, DetailView):
@@ -106,8 +121,15 @@ class SendingDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "sending_confirm_delete.html"
     success_url = reverse_lazy("mailing:sending_list")
 
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_superuser:
+            raise PermissionDenied
+        return self.object
 
+# Виджеты для попыток отправки сообщений ________________________________________________________________________________________
 class AttemptListView(LoginRequiredMixin, ListView):
+    model = MailingAttempt
     template_name = "mailing_service/attempts.html"
     context_object_name = "attempt_list"
 
@@ -115,6 +137,17 @@ class AttemptListView(LoginRequiredMixin, ListView):
         # Получаем только попытки рассылок, принадлежащих пользователю
         return MailingAttempt.objects.filter(mailing__created_by=self.request.user)
 
+
+class AttemptCreateView(LoginRequiredMixin, CreateView):
+    model = MailingAttempt
+    template_name = "mailing_service/attempts.html"
+    context_object_name = "attempt_list"
+
+    def form_valid(self, form):
+        recipient = form.save()
+        recipient.owner = self.request.user
+        recipient.save()
+        return super().form_valid(form)
 
 # Виджеты для сообщений _______________________________________________________________________________________________
 
