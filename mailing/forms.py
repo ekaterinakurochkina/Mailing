@@ -40,6 +40,10 @@ class MessageForm(StyleFormMixin, ModelForm):
         fields = ['subject', 'message_body']
         success_url = reverse_lazy("mailing:message_list")
 
+class MessageModeratorForm(StyleFormMixin, ModelForm):
+    class Meta:
+        model = Message
+        fields = "__all__"
 
 class MailingRecipientForm(StyleFormMixin, ModelForm):
     class Meta:

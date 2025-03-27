@@ -8,42 +8,73 @@
             <div class="row py-lg-0">
                 <div class="col-lg-6 col-md-8 mx-auto">
                     <h1 class="fw-light">Список пользователей (владельцев рассылок)</h1>
-
                 </div>
             </div>
         </section>
     </main>
+
+    <p></p>
+    <p></p>
     <div class="container-fluid">
         <table>
+            <thead>
+            <tr>
+                <th></th>
+                <th>email</th>
+                <th>Роль</th>
+                <th></th>
+                <th>Действия</th>
+                <th></th>
+            </tr>
+            </thead>
             <tbody>
             {% for user in object_list %}
             <tr>
-                <th style="width: 150px;"></th>
-                <th style="width: 200px;padding-left: 10px; background-color: #f2f2f2;">{{ user.email }}</th>
-                {% if user.is_superuser %}
-                <th style="width: 500px; padding-left: 10px; background-color: #f2f2f2;">{{Суперюзер}}</th>
-                {% elif user.is_staff %}
-                <th style="width: 500px; padding-left: 10px; background-color: #f2f2f2;">{{Менеджер}}</th>
-                {% elif user.is_authenticated %}
-                <th style="width: 500px; padding-left: 10px; background-color: #f2f2f2;">{{Пользователь}}</th>
-                {% endif %}
-                <th><a class="btn btn-secondary " button style="width: 150px;" role="button"
-                       href="{% url 'users:user_delete' user.pk %}">Удалить</a></th>
+                <td style="width: 150px;"></td>
+                <td style="width: 200px; padding-left: 10px; background-color: #f2f2f2;">{{ user.email }}</td>
+                <td style="width: 200px; padding-left: 10px; background-color: #f2f2f2;">
+                    {% if user.is_superuser %}
+                    Суперюзер
+                    {% elif user.is_manager %}
+                    Менеджер
+                    {% elif user.is_authenticated %}
+                    Пользователь
+                    {% else %}
+                    Неопределенная роль
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_active %}
+                    <a class="btn btn-secondary"
+                       href="{% url 'users:block_user' user.pk %}">Заблокировать</a>
+                    {% else %}
+                    <a type="button" class="btn btn-success btn-sm"
+                       href="{% url 'users:block_user' user.pk %}">Разблокировать</a>
+                    {% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-primary"
+                       href="{% url 'users:user_edit' user.pk %}">Редактировать</a>
+                </td>
+                <td>
+                    <a class="btn btn-danger" style="width: 150px;" role="button"
+                       href="{% url 'users:user_delete' user.pk %}">Удалить</a>
+                </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
+    <p></p>
+    <p></p>
+
     </div>
 
-
-<p></p>
-
-
-<div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
-    <a class="btn btn-primary " button
-       style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
-       href="{% url 'mailing:home' %}">На главную</a>
+    <div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+        <a class="btn btn-primary"
+           style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
+           href="{% url 'mailing:home' %}">На главную</a>
+    </div>
 
 </div>
 
-{% endblock %}l>
+{% endblock %}

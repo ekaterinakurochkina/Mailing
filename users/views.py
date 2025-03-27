@@ -1,10 +1,10 @@
 import secrets
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic.edit import CreateView, DeleteView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy, reverse
 from config.settings import EMAIL_HOST_USER
-from users.forms import UserRegisterForm
+from users.forms import UserRegisterForm, UserUpdateForm, UserForm
 from users.models import User
 from django.contrib.auth import logout, login
 from django.shortcuts import redirect, get_object_or_404
@@ -51,12 +51,31 @@ class UserCreateView(CreateView):
         )
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_manager'] = self.request.user.groups.filter(name="Менеджер").exists()
+        return context
+
 def email_verification(request, token):
     user = get_object_or_404(User, token=token)
     user.is_active = True
     user.save()
     return redirect(reverse_lazy("users:login"))
 
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
 
+    def get_success_url(self):
+        if self.request.user.is_superuser:
+            return reverse_lazy("users:users")
+        else:
+            return reverse_lazy("mailing:index")
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if not self.request.user.is_superuser:
+            raise PermissionDenied
+        return self.object
 
 

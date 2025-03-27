@@ -1,6 +1,6 @@
 {% extends "base.html" %}
+<title>Удаление пользователя</title>
 
-{% block title %}Удаление пользователя{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -15,15 +15,26 @@
         </section>
     </main>
 
-    {% if object.owner == user or user.has_perm("users.can_canceled_sending") %}
-    <p>Вы уверены, что хотите удалить рассылку "{{ object.name }}"?</p>
+    {% if user.is_superuser %}
+    <p>Вы уверены, что хотите удалить пользователя "{{ object.email }}"?</p>
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Удалить</button>
-        <a href="{% url 'mailing:sending_list' %}" class="btn btn-secondary">Отмена</a>
+        <a href="{% url 'users:user_list' %}" class="btn btn-secondary">Отмена</a>
     </form>
+    {% else %}
+    <div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+    <h3 class="fw-light">У Вас нет прав для удаления этого пользователя</h3>
+    <a class="btn btn-primary " button
+       style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
+       href="{% url 'users:user_list' %}">Вернуться</a>
+    </div>
     {% endif %}
-    <p>У Вас нет прав для удаления этой рассылки</p>
-    <a href="{% url 'mailing:sending_list' %}" class="btn btn-primary">Вернуться</a>
+    <p></p>
+    <p></p>
 
-    {% endblock %}
+
+
+
+
+{% endblock %}

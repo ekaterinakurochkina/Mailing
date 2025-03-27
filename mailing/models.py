@@ -23,7 +23,7 @@ class MailingRecipient(models.Model):  # Получатель рассылки
 class Message(models.Model):  # Сообщение
     # sending = models.ForeignKey(Sending, related_name="subject", on_delete=models.SET_NULL, null=True, blank=True,
     #                             verbose_name="Тема сообщения")
-    # id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     subject = models.CharField(max_length=300, verbose_name='Тема письма')
     message_body = models.TextField(verbose_name='Тело письма', blank=True)  # тело письма
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец")

@@ -23,5 +23,6 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
         ordering = ['email']
         permissions = [
-            ('can_inactivate', 'Can inactivate')
+            ('can_inactivate', 'Can inactivate'),
+            ('can_canceled_sending', 'Can icanceled sending'),
         ]

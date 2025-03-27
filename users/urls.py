@@ -1,11 +1,12 @@
 from django.urls import path
 from users.apps import UsersConfig
 from django.contrib.auth.views import LoginView, LogoutView
-from users.views import logout_view, UserCreateView, email_verification, UserDeleteView, UserListView
+from users.views import logout_view, UserCreateView, email_verification, UserDeleteView, UserListView, UserUpdateView
 
 from django.contrib.auth.views import LoginView
 from users.views import logout_view, UserCreateView, email_verification
 from users.views import logout_view
+from users.services import block_user
 
 
 from .views import UserCreateView
@@ -20,6 +21,8 @@ urlpatterns = [
     path('users/email-confirm/<str:token>', email_verification, name='email-confirm'),
     path('users/list', UserListView.as_view(), name='user_list'),
     path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
+    path('users/<int:pk>/edit/', UserUpdateView.as_view(), name='user_edit'),
+    path("/<int:pk>/block", block_user, name="block_user"),
 ]
 # (template_name="user_form.html")
 # login/

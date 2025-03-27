@@ -238,9 +238,9 @@
                     {% else %}
 
                     <div class="d-flex justify-content-between align-items-center">
-                        <a class="btn btn-primary me-2" role="button" href="#">Получатели</a>
-                        <a class="btn btn-primary me-2" role="button" href="#">Сообщения</a>
-                        <a class="btn btn-primary me-2" role="button" href="#">Рассылки</a>
+                        <a class="btn btn-primary me-2" role="button" href="{% url 'mailing:recipient_list' %}">Получатели</a>
+                        <a class="btn btn-primary me-2" role="button" href="{% url 'mailing:message_list' %}">Сообщения</a>
+                        <a class="btn btn-primary me-2" role="button" href="{% url 'mailing:sending_list' %}">Рассылки</a>
                     </div>
 
                     {% endif %}
