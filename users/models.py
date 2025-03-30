@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     username = None
-    # username = models.CharField(max_length=35, null=True)
     email = models.EmailField(unique=True, verbose_name="Email")
     phone = models.CharField(max_length=35, verbose_name="Телефон", blank=True, null=True, help_text="Введите номер телефона")
     avatar = models.ImageField(upload_to="users/avatars", verbose_name="Аватар", blank=True, null=True, help_text='Загрузите свой аватар')
@@ -23,6 +22,6 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
         ordering = ['email']
         permissions = [
-            ('can_inactivate', 'Can inactivate'),
-            ('can_canceled_sending', 'Can icanceled sending'),
+            ('can_inactivate', 'Может блокировать пользователя'),
+            ('can_canceled_sending', 'Может блокировать рассылку'),
         ]

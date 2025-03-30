@@ -44,12 +44,18 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if user.is_active %}
-                    <a class="btn btn-secondary"
-                       href="{% url 'users:block_user' user.pk %}">Заблокировать</a>
-                    {% else %}
-                    <a type="button" class="btn btn-success btn-sm"
-                       href="{% url 'users:block_user' user.pk %}">Разблокировать</a>
+                    {% if user.is_superuser %}
+                    -----------
+                    {% elif user.is_manager %}
+                    -----------
+                    {% elif user.is_authenticated %}
+                        {% if user.is_active %}
+                        <a class="btn btn-secondary"
+                           href="{% url 'users:block_user' user.pk %}">Заблокировать</a>
+                        {% else %}
+                        <a class="btn btn-secondary"
+                           href="{% url 'users:block_user' user.pk %}">Разблокировать</a>
+                        {% endif %}
                     {% endif %}
                 </td>
                 <td>

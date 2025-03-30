@@ -32,7 +32,7 @@ class UserRegisterForm(StyleFormMixin, UserCreationForm):
     class Meta:
         model = User
         fields = ("email", "password1", "password2")
-        template_name = "users/user_form.html"
+        # template_name = "user_form.html"
 
 
 class UserUpdateForm(StyleFormMixin, ModelForm):

@@ -18,4 +18,4 @@ def block_user(self, pk):
     user = User.objects.get(pk=pk)
     user.is_active = {user.is_active: False, not user.is_active: True}[True]
     user.save()
-    return redirect(reverse("users:users"))
+    return redirect(reverse("users:user_list"))

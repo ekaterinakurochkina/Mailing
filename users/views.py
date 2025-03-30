@@ -1,6 +1,7 @@
 import secrets
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy, reverse
 from config.settings import EMAIL_HOST_USER
@@ -31,36 +32,36 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 class UserCreateView(CreateView):
     model = User
     form_class = UserRegisterForm
-    success_url = reverse_lazy("users:login")
+    success_url = reverse_lazy("mailing:home")
     # 'mailing:home'
     # 'users:login'
-    def form_valid(self, form):
-        user = form.save()
-        user.is_active = False
-        token = secrets.token_hex(16)  # генерируем токен
-        user.token = token
-        user.save()
-        host = self.request.get_host()   # получаем хост, откуда пришел пользователь
-        url = f'http://{host}/users/email-confirm/{token}'
-        send_mail(
-            subject="Добро пожаловать в наш сервис",
-            message=f"""Спасибо, что зарегистрировались в нашем сервисе!
-            Для подтверждения регистрации перейдите по ссылке {url}""",
-            from_email=EMAIL_HOST_USER,
-            recipient_list=[user.email]
-        )
-        return super().form_valid(form)
+    # def form_valid(self, form):
+    #     user = form.save()
+    #     user.is_active = False
+    #     token = secrets.token_hex(16)  # генерируем токен
+    #     user.token = token
+    #     user.save()
+    #     host = self.request.get_host()   # получаем хост, откуда пришел пользователь
+    #     url = f'http://{host}/users/email-confirm/{token}/'
+    #     send_mail(
+    #         subject="Подтверждение почты",
+    #         message=f"""Спасибо, что зарегистрировались в нашем сервисе!
+    #         Для подтверждения регистрации перейдите по ссылке {url}""",
+    #         from_email=EMAIL_HOST_USER,
+    #         recipient_list=[user.email]
+    #     )
+    #     return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_manager'] = self.request.user.groups.filter(name="Менеджер").exists()
         return context
 
-def email_verification(request, token):
-    user = get_object_or_404(User, token=token)
-    user.is_active = True
-    user.save()
-    return redirect(reverse_lazy("users:login"))
+# def email_verification(request, token):
+#     user = get_object_or_404(User, token=token)
+#     user.is_active = True
+#     user.save()
+#     return redirect(reverse_lazy("users:login"))
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
@@ -68,9 +69,9 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         if self.request.user.is_superuser:
-            return reverse_lazy("users:users")
+            return reverse_lazy("mailing:home")
         else:
-            return reverse_lazy("mailing:index")
+            return reverse_lazy("mailing:home")
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
