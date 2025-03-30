@@ -18,21 +18,30 @@ def logout_view(request):
     logout(request)
     return redirect('mailing:home')
 
+
 class UserListView(LoginRequiredMixin, ListView):
-    model =User
+    model = User
     template_name = "user_list.html"
     context_object_name = "users"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Получаем всех пользователей и добавляем информацию о принадлежности к группе
+        for user in context['users']:
+            user.is_manager = user.groups.filter(name="Менеджер").exists()
+        return context
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = User
     template_name = "user_confirm_delete.html"
     success_url = reverse_lazy("mailing:user_list")
 
+
 class UserCreateView(CreateView):
     model = User
     form_class = UserRegisterForm
     success_url = reverse_lazy("mailing:home")
+
     # 'mailing:home'
     # 'users:login'
     # def form_valid(self, form):
@@ -63,6 +72,7 @@ class UserCreateView(CreateView):
 #     user.save()
 #     return redirect(reverse_lazy("users:login"))
 
+
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
@@ -78,5 +88,3 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
         if not self.request.user.is_superuser:
             raise PermissionDenied
         return self.object
-
-

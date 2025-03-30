@@ -32,7 +32,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for sending in object_list %}
+              {% for sending in sendings %}
               <tr>
                 <td style="width: 20px;"></td>
                 <td style="width: 70px;">{{ sending.id }}</td>
@@ -46,9 +46,6 @@
               {% endfor %}
             </tbody>
           </table>
-
-
-
       </div>
     </div>
   </div>
@@ -63,3 +60,26 @@
 
 {% endblock %}l>
 
+<table>
+    <thead>
+    <tr>
+        <th style="width: 200px"></th>
+        <th style="width: 70px;background-color: #f2f2f2;">id</th>
+        <th style="width: 300px; padding-left: 10px; background-color: #f2f2f2;">Email</th>
+        <th style="width: 400px; padding-left: 10px; background-color: #f2f2f2;">Имя</th>
+        <th style="background-color: #f2f2f2;">Детали</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for recipient in recipients %}
+    <tr>
+        <td style="width: 200px;"></td>
+        <td style="width: 70px;">{{ recipient.id }}</td>
+        <td style="width: 300px; padding-left: 10px; ">{{ recipient.email }}</td>
+        <td style="width: 400px;padding-left: 10px;">{{ recipient.name }}</td>
+        <td><a class="btn btn-primary " button style="width: 150px;" role="button"
+               href="{% url 'mailing:recipient_detail' recipient.id %}">Посмотреть</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

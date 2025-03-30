@@ -1,18 +1,27 @@
 {% extends "base.html" %}
 <title>Удаление рассылки</title>
-
-
 {% block content %}
-<h2>Удаление рассылки</h2>
-{% if object.owner == user or user.has_perm("users.can_canceled_sending") %}
-    <p>Вы уверены, что хотите удалить рассылку "{{ object.name }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Удалить</button>
-        <a href="{% url 'mailing:sending_list' %}" class="btn btn-secondary">Отмена</a>
-    </form>
-{% endif  %}
-    <p>У Вас нет прав для удаления этой рассылки</p>
-    <a href="{% url 'mailing:sending_list' %}" class="btn btn-primary">Вернуться</a>
-
+<div class="container-fluid">
+    <main>
+        <section class="text-center container">
+            <div class="row py-lg-0">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Удаление рассылки</h1>
+                    <p>Вы уверены, что хотите удалить рассылку "{{ object.name }}"?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        <a href="{% url 'mailing:sending_list' %}" class="btn btn-secondary">Отмена</a>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<p></p>
+<div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+    <a class="btn btn-primary " button
+       style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
+       href="{% url 'mailing:sending_list' %}">Вернуться</a>
+</div>
 {% endblock %}

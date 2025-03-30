@@ -185,11 +185,12 @@ class MessageListView(LoginRequiredMixin, ListView):
         context["мessage_id"] = Message.id
         return context
 
-    # def get_queryset(self, *args, **kwargs):
-    #     if self.request.user.is_superuser:
-    #         return super().get_queryset()
-    #     else:
-    #         raise PermissionDenied
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.request.user.is_superuser or self.request.user.groups.filter(
+                name="Менеджер") or self.object.owner == self.request.user:
+            return self.object
+        raise PermissionDenied
 
     def get_queryset(self):
         user = self.request.user
@@ -204,11 +205,26 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
     template_name = "message_detail.html"
     context_object_name = "message"
 
+    # def get_object(self, queryset=None):
+    #     self.object = super().get_object(queryset)
+    #     if not self.request.user.is_superuser:
+    #         raise PermissionDenied
+    #     return self.object
+
+    # def get_object(self, queryset=None):
+    #     self.object = super().get_object(queryset)
+    #     if self.request.user.is_superuser or self.request.user.groups.filter(name="Менеджер"):
+    #         return self.object
+    #     if self.object.owner != self.request.user and not self.request.user.is_superuser:
+    #         raise PermissionDenied
+    #     return self.object
+
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if not self.request.user.is_superuser:
-            raise PermissionDenied
-        return self.object
+        if self.request.user.is_superuser or self.request.user.groups.filter(
+                name="Менеджер") or self.object.owner == self.request.user:
+            return self.object
+        raise PermissionDenied
 
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
@@ -247,6 +263,7 @@ class MailingRecipientCreateView(LoginRequiredMixin, CreateView):
     # form_class = MailingRecipientForm
     fields = ["email", 'name', 'comment']
     template_name = "recipient_form.html"
+    context_object_name = "recipient"
     success_url = reverse_lazy("mailing:recipient_list")
 
     def form_valid(self, form):
