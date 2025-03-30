@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+<title>Удаление</title>
 
-</body>
-</html>
+{% block content %}
+<h2>Удаление сообщения</h2>
+
+    <p>Вы уверены, что хотите удалить сообщение "{{ object.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a href="{% url 'mailing:message_list' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+
+    <a href="{% url 'mailing:message_list' %}" class="btn btn-primary">Вернуться</a>
+
+{% endblock %}

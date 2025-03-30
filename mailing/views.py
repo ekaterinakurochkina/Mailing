@@ -244,8 +244,8 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
 
 class MailingRecipientCreateView(LoginRequiredMixin, CreateView):
     model = MailingRecipient
-    form_class = MailingRecipientForm
-    fields = ["name", 'recipient', 'message']
+    # form_class = MailingRecipientForm
+    fields = ["email", 'name', 'comment']
     template_name = "recipient_form.html"
     success_url = reverse_lazy("mailing:recipient_list")
 

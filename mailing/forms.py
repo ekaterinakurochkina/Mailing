@@ -20,7 +20,7 @@ class SendingForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Sending
         fields = "__all__"
-        # exclude = ("owner",)
+        exclude = ("owner",)
         success_url = reverse_lazy("mailing:sending_list")
 
     # def create_owner(self):
@@ -38,6 +38,7 @@ class MessageForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Message
         fields = ['subject', 'message_body']
+        exclude = ("owner",)
         success_url = reverse_lazy("mailing:message_list")
 
 class MessageModeratorForm(StyleFormMixin, ModelForm):
@@ -48,5 +49,6 @@ class MessageModeratorForm(StyleFormMixin, ModelForm):
 class MailingRecipientForm(StyleFormMixin, ModelForm):
     class Meta:
         model = MailingRecipient
-        fields = ['email', 'name']
+        fields = "__all__"
+        exclude = ("owner",)
         success_url = reverse_lazy("mailing:recipient_list")
