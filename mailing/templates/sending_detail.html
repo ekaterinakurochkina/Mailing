@@ -7,34 +7,46 @@
 <div class="album py-5 bg-body-tertiary">
 
     <div class="container">
-      <div class="col-12 ">
+        <div class="col-12 ">
 
-        <div class="col">
-          <div class="card shadow-sm">
-              <div class="card-body">
-                <p class="card-text">Название рассылки: {{ object.name }}</p>
-                <p class="card-text">Начало рассылки: {{ object.start_sending }}</p>
-                <p class="card-text">Окончание рассылки: {{ object.end_sending }}</p>
-                <p class="card-text">Статус: {{ object.status }} </p>
-                <p class="card-text">Тема сообщения: {{ object.message }} </p>
-                <p class="card-text">Отправитель: {{ object.owner }} </p>
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <p class="card-text">Название рассылки: {{ object.name }}</p>
+                        <p class="card-text">Начало рассылки: {{ object.start_sending }}</p>
+                        <p class="card-text">Окончание рассылки: {{ object.end_sending }}</p>
+                        <p class="card-text">Статус: {{ object.status }} </p>
+                        <p class="card-text">Тема сообщения: {{ object.message }} </p>
+                        <p class="card-text">Отправитель: {{ object.owner }} </p>
 
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a href="btn btn-primary " button style="width: 200px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; {% url 'mailing:sending_edit' sending.pk %}" class="btn btn-secondary">Запустить рассылку</a>
-                    <a href="{% url 'mailing:sending_edit' sending.pk %}" class="btn btn-secondary">Редактировать</a>
-                    <a href="{% url 'mailing:sending_delete' sending.pk %}" class="btn btn-danger">Удалить</a>
-                    <a class="btn btn-primary" role="button" href="{% url 'mailing:sending_list' %}">Вернуться к списку рассылок</a>
-                  </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <form action="{% url 'mailing:run_sending' sending.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary"
+                                            style="width: 200px; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">
+                                        Запустить
+                                    </button>
+                                </form>
+                                <a href="btn btn-primary " button
+                                   style="width: 200px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; {% url 'mailing:run_sending' object.pk %}"
+                                   class="btn btn-secondary">Запустить рассылку</a>
 
+                                <a href="{% url 'mailing:sending_edit' sending.pk %}" class="btn btn-secondary">Редактировать</a>
+                                <a href="{% url 'mailing:sending_delete' sending.pk %}"
+                                   class="btn btn-danger">Удалить</a>
+                                <a class="btn btn-primary" role="button" href="{% url 'mailing:sending_list' %}">Вернуться
+                                    к списку рассылок</a>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
-              </div>
-          </div>
-        </div>
+            </div>
 
-      </div>
+        </div>
     </div>
-  </div>
+</div>
 {% endblock %}
 
 

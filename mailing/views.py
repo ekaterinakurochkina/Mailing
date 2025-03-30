@@ -5,9 +5,9 @@ from .models import MailingRecipient, Message, Sending, MailingAttempt
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from mailing.service import get_object_from_cache
+from mailing.services import get_object_from_cache
 from django.forms import inlineformset_factory
-
+from mailing.services import run_sending
 
 class HomePageView(TemplateView):
     template_name = "home.html"
