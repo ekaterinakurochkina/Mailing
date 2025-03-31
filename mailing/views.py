@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from mailing.services import get_object_from_cache
 from django.forms import inlineformset_factory
-from mailing.services import run_sending
+# from mailing.services import run_sending
 
 class HomePageView(TemplateView):
     template_name = "home.html"

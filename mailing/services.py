@@ -6,8 +6,6 @@ from config.settings import CACHE_ENABLED
 from mailing.models import MailingRecipient, Message, Sending, MailingAttempt
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
-from users.models import User
-
 from config.settings import CACHE_ENABLED, EMAIL_HOST_USER
 from mailing.models import Sending, MailingAttempt
 from users.models import User
@@ -20,44 +18,44 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def run_sending(request, pk):
-    """Функция запуска рассылки по требованию"""
-    sending = get_object_or_404(Sending, id=pk)
-
-    # Установите статус на "запущено" перед началом отправки
-    sending.status = "launched"
-    sending.save()
-
-    for recipient in MailingRecipient.all():
-        try:
-            send_mail(
-                subject=sending.message.subject,
-                message=sending.message.message_body,
-                from_email=EMAIL_HOST_USER,
-                recipient_list=[recipient.email],
-                fail_silently=False,
-            )
-            MailingAttempt.objects.create(
-                date_attempt=timezone.now(),
-                status=MailingAttempt.successfully,
-                server_response="Email отправлен",
-                sending=sending,
-            )
-        except Exception as e:
-            logger.error(f"Ошибка при отправке письма для {recipient.email}: {str(e)}")
-            MailingAttempt.objects.create(
-                date_attempt=timezone.now(),
-                status=MailingAttempt.unsuccessful,
-                server_response=str(e),
-                sending=sending,
-            )
-
-    # Проверяем, нужно ли обновить статус на "завершено"
-    if sending.end_sending and sending.end_sending <= timezone.now():
-        sending.status = Sending.completed
-
-    sending.save()
-    return redirect("mailing:sending_list")
+# def run_sending(request, pk):
+#     """Функция запуска рассылки по требованию"""
+#     sending = get_object_or_404(Sending, id=pk)
+#
+#     # Установите статус на "запущено" перед началом отправки
+#     sending.status = "launched"
+#     sending.save()
+#
+#     for recipient in MailingRecipient.all():
+#         try:
+#             send_mail(
+#                 subject=sending.message.subject,
+#                 message=sending.message.message_body,
+#                 from_email=EMAIL_HOST_USER,
+#                 recipient_list=[recipient.email],
+#                 fail_silently=False,
+#             )
+#             MailingAttempt.objects.create(
+#                 date_attempt=timezone.now(),
+#                 status=MailingAttempt.successfully,
+#                 server_response="Email отправлен",
+#                 sending=sending,
+#             )
+#         except Exception as e:
+#             logger.error(f"Ошибка при отправке письма для {recipient.email}: {str(e)}")
+#             MailingAttempt.objects.create(
+#                 date_attempt=timezone.now(),
+#                 status=MailingAttempt.unsuccessful,
+#                 server_response=str(e),
+#                 sending=sending,
+#             )
+#
+#     # Проверяем, нужно ли обновить статус на "завершено"
+#     if sending.end_sending and sending.end_sending <= timezone.now():
+#         sending.status = Sending.completed
+#
+#     sending.save()
+#     return redirect("mailing:sending_list")
 
 
 def get_mailing_from_cache():
@@ -98,28 +96,28 @@ def get_object_from_cache():
     cache.set(key, sendings)    # записываем этот список в кеш
     return sendings             # и выдаем пользователю
 
-# def send_mailing(mailing):
-#     for recipient in mailing.recipients.all():
-#         try:
-#             send_mail(
-#                 mailing.message.subject,
-#                 mailing.message.message_body,
-#                 'From-garden@yandex.ru',
-#                 [recipient.email],
-#             )
-#             status = 'successfully'
-#             response = 'Сообщение отправлено'
-#         except Exception as e:
-#             status = 'unsuccessful'
-#             response = str(e)
-#
-#         # Создаем попытку отправки рассылки
-#         MailingAttempt.objects.create(
-#             mailing=mailing,
-#             recipient=recipient,
-#             status=status,
-#             response=response
-#         )
+def send_mail(mailing):
+    for recipient in mailing.recipients.all():
+        try:
+            send_mail(
+                mailing.message.subject,
+                mailing.message.message_body,
+                'From-garden@yandex.ru',
+                [recipient.email],
+            )
+            status = 'successfully'
+            response = 'Сообщение отправлено'
+        except Exception as e:
+            status = 'unsuccessful'
+            response = str(e)
+
+        # Создаем попытку отправки рассылки
+        MailingAttempt.objects.create(
+            mailing=mailing,
+            recipient=recipient,
+            status=status,
+            response=response
+        )
 
 class InactivateSending(LoginRequiredMixin, View):
     def post(self,request, sending_id):

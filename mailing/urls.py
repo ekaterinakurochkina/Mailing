@@ -5,7 +5,7 @@ from mailing.views import SendingCreateView, SendingDeleteView, SendingUpdateVie
 from mailing.views import MessageListView, MessageDetailView, MessageUpdateView, MessageDeleteView, MessageCreateView
 from mailing.views import MailingRecipientCreateView, MailingRecipientListView, MailingRecipientDetailView, \
     MailingRecipientUpdateView, MailingRecipientDeleteView, AttemptListView
-from mailing.services import block_mailing, run_sending
+# from mailing.services import run_sending
 app_name = MailingConfig.name
 
 urlpatterns = [
@@ -27,6 +27,6 @@ urlpatterns = [
     path('recipient/<int:pk>/edit/', MailingRecipientUpdateView.as_view(), name='recipient_edit'),
     path('recipient/<int:pk>/delete/', MailingRecipientDeleteView.as_view(), name='recipient_delete'),
     path('attempt/', AttemptListView.as_view(), name='attempt'),
-    path('sending/<int:pk>/run/', run_sending, name='run_sending'),
-    path("block_sending/<int:pk>", block_mailing, name="block_mailing"),
+    # path('sending/<int:pk>/run/', run_sending, name='run_sending'),
+    # path("block_sending/<int:pk>", block_mailing, name="block_mailing"),
 ]
