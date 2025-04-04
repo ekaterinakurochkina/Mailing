@@ -81,7 +81,7 @@ class MailingAttempt(models.Model):  # Попытка рассылки
     sending = models.ForeignKey(Sending, on_delete=models.PROTECT)  # рассылка (внешн.ключ на модель Рассылка)
 
     def __str__(self):
-        return self.status_attempt
+        return f"{self.status_attempt} - {self.sending.id} - {self.created_at}"
 
     class Meta:
         verbose_name = 'Попытка рассылки'

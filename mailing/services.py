@@ -3,21 +3,73 @@ from django.urls import reverse
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from config.settings import CACHE_ENABLED
-from mailing.models import MailingRecipient, Message, Sending, MailingAttempt
+from mailing.models import MailingRecipient, Message, MailingAttempt
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
 from config.settings import CACHE_ENABLED, EMAIL_HOST_USER
-from mailing.models import Sending, MailingAttempt
+from mailing.models import Sending
 from users.models import User
 from django.http import HttpResponseRedirect
-
+from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
 from django.core.mail import send_mail
 from django.utils import timezone
 import logging
 
+
 logger = logging.getLogger(__name__)
 
+from django.core.mail import send_mail
+from django.core.mail import send_mail
+from .models import MailingAttempt, Sending
+
+def run_sending(pk):
+    try:
+        # Получаем рассылку по ID
+        sending = Sending.objects.get(id=pk)
+
+        # Проверяем, активна ли рассылка
+        if not sending.is_active:
+            print("Рассылка неактивна.")
+            return
+
+        # Проходим по всем получателям
+        for recipient in sending.recipient.all():
+            try:
+                # Отправляем сообщение
+                send_mail(
+                    subject=sending.message.subject,
+                    message=sending.message.message_body,
+                    from_email='your_email@example.com',  # Замените на ваш email
+                    recipient_list=[recipient.email],
+                )
+                # Логируем успешную попытку
+                MailingAttempt.objects.create(
+                    status_attempt='successfully',
+                    sending=sending,
+                )
+                print(f"Сообщение успешно отправлено на {recipient.email}")
+
+            except Exception as e:
+                # Логируем неуспешную попытку
+                MailingAttempt.objects.create(
+                    status_attempt='unsuccessful',
+                    answer=str(e),
+                    sending=sending,
+                )
+                print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
+
+    except Sending.DoesNotExist:
+        print("Рассылка не найдена.")
+
+
+
+
+def statistics_view(request):
+    attempts = MailingAttempt.objects.all().order_by('-created_at')  # Получаем все попытки отправки
+    return render(request, 'statistics.html', {'attempts': attempts})
+
+# _____________________
 # def run_sending(request, pk):
 #     """Функция запуска рассылки по требованию"""
 #     sending = get_object_or_404(Sending, id=pk)
@@ -26,7 +78,7 @@ logger = logging.getLogger(__name__)
 #     sending.status = "launched"
 #     sending.save()
 #
-#     for recipient in MailingRecipient.all():
+#     for recipient in MailingRecipient():
 #         try:
 #             send_mail(
 #                 subject=sending.message.subject,

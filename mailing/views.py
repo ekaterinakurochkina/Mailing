@@ -7,7 +7,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from mailing.services import get_object_from_cache
 from django.forms import inlineformset_factory
-# from mailing.services import run_sending
+from mailing.services import run_sending
+from django.http import HttpResponse
+
 
 class HomePageView(TemplateView):
     template_name = "home.html"
@@ -133,17 +135,18 @@ class SendingDeleteView(LoginRequiredMixin, DeleteView):
 class AttemptListView(LoginRequiredMixin, ListView):
     model = MailingAttempt
     template_name = "attempts.html"
-    context_object_name = "attempt"
+    context_object_name = "attempts"
 
     def get_queryset(self):
         # Получаем только попытки рассылок, принадлежащих пользователю
-        return MailingAttempt.objects.filter(mailing__created_by=self.request.user)
+        # return MailingAttempt.objects.filter(sending__created_by=self.request.user)
+        return MailingAttempt.objects.all().order_by('-date_attempt')
 
 
 class AttemptCreateView(LoginRequiredMixin, CreateView):
     model = MailingAttempt
     template_name = "attempts.html"
-    context_object_name = "attempt"
+    context_object_name = "attempts"
 
     def form_valid(self, form):
         recipient = form.save()
@@ -151,6 +154,10 @@ class AttemptCreateView(LoginRequiredMixin, CreateView):
         recipient.save()
         return super().form_valid(form)
 
+
+def trigger_sending(request, pk):
+    run_sending(pk)  # Здесь передаем pk как позиционный аргумент
+    return HttpResponse("Рассылка завершена.")
 
 # Виджеты для сообщений _______________________________________________________________________________________________
 

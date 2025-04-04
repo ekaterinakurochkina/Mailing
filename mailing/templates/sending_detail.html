@@ -21,16 +21,14 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
-                                <form action="{% url 'mailing:run_sending' sending.id %}" method="post">
+                                <form action="{% url 'mailing:trigger_sending' sending.id %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-primary"
                                             style="width: 200px; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">
-                                        Запустить
+                                        Запустить рассылку
                                     </button>
                                 </form>
-                                <a href="btn btn-primary " button
-                                   style="width: 200px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; {% url 'mailing:run_sending' object.pk %}"
-                                   class="btn btn-secondary">Запустить рассылку</a>
+
 
                                 <a href="{% url 'mailing:sending_edit' sending.pk %}" class="btn btn-secondary">Редактировать</a>
                                 <a href="{% url 'mailing:sending_delete' sending.pk %}"

@@ -1,5 +1,6 @@
-{% extends 'mailing/base.html' %}
+{% extends "base.html" %}
 <title>Статистика</title>
+
 {% block content %}
 <div class="container marketing mt-5">
     <div class="container text-center mt-3">
@@ -14,7 +15,7 @@
     </div>
     <div class="row">
         <div class="table-responsive small">
-            <table class="table table-success table-striped">
+            <table class="table table-striped">
                 <thead>
                 <tr>
                     <th>Тема сообщения</th>
@@ -45,5 +46,11 @@
 
         </div><!-- /.row -->
     </div><!-- /.container -->
+</div>
+
+<p></p>
+<div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+  <a class="btn btn-primary " button style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer" href="{% url 'mailing:home' %}">На главную</a>
+
 </div>
 {% endblock %}}
