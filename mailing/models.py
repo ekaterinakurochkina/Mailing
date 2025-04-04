@@ -66,7 +66,7 @@ class Sending(models.Model):  # Рассылка
         verbose_name_plural = 'Рассылки'
         ordering = ['status']
         permissions = [
-            ('can_canceled_sending', ' ')
+            ('can_canceled_sending', 'Может блокировать рассылку ')
         ]
 
 

@@ -29,6 +29,7 @@
                 <th style="background-color: #f2f2f2;">Статус</th>
                 <th style="background-color: #f2f2f2;">Тема сообщения</th>
                 <th style="background-color: #f2f2f2;">Детали</th>
+                <th style="background-color: #f2f2f2;">Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -42,6 +43,17 @@
                 <td style="width: 100px; background-color: #f2f2f2;padding-left: 10px;">{{ sending.status }}</td>
                 <td style="width: 250px;padding-left: 10px;">{{ sending.message }}</td>
                 <td><a class="btn btn-primary " button style="width: 150px;" role="button" href="{% url 'mailing:sending_detail' sending.pk %}">Посмотреть</a></td>
+                <td style="width: 250px;padding-left: 10px;">
+
+                        {% if sending.is_active %}
+                        <a class="btn btn-secondary"
+                           href="{% url 'mailing:block_sending' sending.pk %}">Заблокировать</a>
+                        {% else %}
+                        <a class="btn btn-secondary"
+                           href="{% url 'mailing:block_sending' sending.pk %}">Разблокировать</a>
+                        {% endif %}
+
+                </td>
               </tr>
               {% endfor %}
             </tbody>

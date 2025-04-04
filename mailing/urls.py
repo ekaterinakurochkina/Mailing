@@ -6,6 +6,8 @@ from mailing.views import MessageListView, MessageDetailView, MessageUpdateView,
 from mailing.views import MailingRecipientCreateView, MailingRecipientListView, MailingRecipientDetailView, \
     MailingRecipientUpdateView, MailingRecipientDeleteView, AttemptListView, trigger_sending
 from mailing.services import run_sending, statistics_view
+from mailing.services import BlockSendingView
+
 app_name = MailingConfig.name
 
 urlpatterns = [
@@ -28,6 +30,8 @@ urlpatterns = [
     path('recipient/<int:pk>/delete/', MailingRecipientDeleteView.as_view(), name='recipient_delete'),
     path('attempts/', AttemptListView.as_view(), name='attempts'),
     path('sending/<int:pk>/run/', trigger_sending, name='trigger_sending'),
+    path('<int:pk>/block', BlockSendingView.as_view(), name='block_sending'),
     # path('statistics/', statistics_view, name='statistics_view'),
     # path("block_sending/<int:pk>", block_mailing, name="block_mailing"),
+# path("<int:pk>/block", block_user, name="block_user")
 ]

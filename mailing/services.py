@@ -76,6 +76,22 @@ def statistics_view(request):
 
     return render(request, 'statistics.html', {'attempts': attempts})
 
+
+class BlockSendingView(LoginRequiredMixin, View):
+    def post(self, request, sending_id):
+        sending = get_object_or_404(Sending, id=sending_id)
+
+        if request.user.has_perm('sending.can_canceled_sending'):
+            sending.is_active = {sending.is_active: False, not sending.is_active: True}[True]
+            sending.save()
+        return redirect(reverse("mailing:sending_list"))
+
+
+# def block_sending(self, pk):
+#     sending = Sending.objects.get(pk=pk)
+#     sending.is_active = {sending.is_active: False, not sending.is_active: True}[True]
+#     sending.save()
+#     return redirect(reverse("mailing:sending_list"))
 # _____________________
 # def run_sending(request, pk):
 #     """Функция запуска рассылки по требованию"""
