@@ -25,3 +25,7 @@ class User(AbstractUser):
             ('can_inactivate', 'Может блокировать пользователя'),
             ('can_canceled_sending', 'Может блокировать рассылку'),
         ]
+
+    @property
+    def is_moderator(self) -> bool:
+        return self.groups.filter(name='Менеджер').exists()

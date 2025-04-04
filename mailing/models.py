@@ -8,7 +8,6 @@ class MailingRecipient(models.Model):  # Получатель рассылки
     email = models.EmailField(unique=True, verbose_name='Email')  # Email
     name = models.CharField(max_length=150, verbose_name='ФИО', blank=True)  # ФИО
     comment = models.TextField(verbose_name='Комментарий', blank=True)  # комментарий
-    is_active = models.BooleanField(default=True, verbose_name="Действительный")
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Владелец")
 
     def __str__(self):

@@ -1,3 +1,5 @@
+from email.headerregistry import Group
+
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -19,6 +21,8 @@ def block_user(self, pk):
     user.is_active = {user.is_active: False, not user.is_active: True}[True]
     user.save()
     return redirect(reverse("users:user_list"))
+
+
 
 # @permission_required("users.can_canceled_sending")
 # def block_sending(self, pk):
