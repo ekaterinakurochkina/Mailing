@@ -79,7 +79,8 @@ class MailingAttempt(models.Model):  # Попытка рассылки
     status_attempt = models.CharField(max_length=15, choices=STATUS_CHOICES, verbose_name='Статус полытки')  # Статус: успешно/неуспешно
     answer = models.TextField(blank=True, null=True, verbose_name='Ответ почтового сервера')  # ответ почтового сервера
     sending = models.ForeignKey(Sending, on_delete=models.PROTECT)  # рассылка (внешн.ключ на модель Рассылка)
-
+    # owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE) # Связь с пользователем
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return f"{self.status_attempt} - {self.sending.id} - {self.created_at}"
 

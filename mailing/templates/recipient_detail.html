@@ -4,42 +4,6 @@
 <p></p>
 <h3 style="margin-left: 500px;">Получатель {{recipient.id}}</h3>
 
-<div class="album py-5 bg-body-tertiary">
-
-    <div class="container">
-      <div class="col-12 ">% extends 'base.html' %}
-<title>Статистика</title>
-{% block content %}
-<p></p>
-<h3 style="margin-left: 500px;">Статистика отправленных сообщений </h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID Рассылки</th>
-                <th>Статус</th>
-                <th>Ответ</th>
-                <th>Дата и время</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for attempt in attempts %}
-            <tr>
-                <td>{{ attempt.sending.id }}</td>
-                <td>{{ attempt.get_status_attempt_display }}</td>
-                <td>{{ attempt.answer }}</td>
-                <td>{{ attempt.created_at }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4">Нет данных о попытках отправки.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-{% endblock %}
-
 
         <div class="col">
           <div class="card shadow-sm">

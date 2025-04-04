@@ -15,6 +15,7 @@
 
     <p></p>
     <p></p>
+
     <div class="container-fluid">
         <table>
             <thead>
@@ -59,12 +60,16 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if not user.is_superuser %}
                     <a class="btn btn-primary"
                        href="{% url 'users:user_edit' user.pk %}">Редактировать</a>
+                    {% endif %}
                 </td>
                 <td>
+                    {% if not user.is_superuser %}
                     <a class="btn btn-danger" style="width: 150px;" role="button"
                        href="{% url 'users:user_delete' user.pk %}">Удалить</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -74,6 +79,7 @@
     <p></p>
 
     </div>
+
 
     <div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
         <a class="btn btn-primary"

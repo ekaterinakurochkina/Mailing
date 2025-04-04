@@ -19,8 +19,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from django.core.mail import send_mail
-from django.core.mail import send_mail
+
 from .models import MailingAttempt, Sending
 
 def run_sending(pk):
@@ -40,7 +39,7 @@ def run_sending(pk):
                 send_mail(
                     subject=sending.message.subject,
                     message=sending.message.message_body,
-                    from_email='your_email@example.com',  # Замените на ваш email
+                    from_email='From-garden@yandex.ru',
                     recipient_list=[recipient.email],
                 )
                 # Логируем успешную попытку
@@ -66,7 +65,15 @@ def run_sending(pk):
 
 
 def statistics_view(request):
-    attempts = MailingAttempt.objects.all().order_by('-created_at')  # Получаем все попытки отправки
+    user = request.user
+
+    if user.is_superuser:
+        attempts = MailingAttempt.objects.all().order_by('-date_attempt')  # Все попытки для суперпользователя
+    elif user.groups.filter(name='Менеджер').exists():
+        attempts = MailingAttempt.objects.all().order_by('-date_attempt')  # Все попытки для менеджера
+    else:
+        attempts = MailingAttempt.objects.filter(owner=user).order_by('-date_attempt')  # Только свои рассылки для обычного пользователя
+
     return render(request, 'statistics.html', {'attempts': attempts})
 
 # _____________________

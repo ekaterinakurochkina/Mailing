@@ -7,8 +7,11 @@
         <section class="text-center container">
             <div class="row py-lg-0">
                 <div class="col-lg-6 col-md-8 mx-auto">
+                    {% if object %}
                     <h1 class="fw-light">Регистрация пользователя</h1>
-
+                    {% else %}
+                    <h1 class="fw-light">Редактирование пользователя</h1>
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -22,9 +25,15 @@
                         {% csrf_token %}
                         {{ form.as_p }}
                     </div>
+                    {% if object %}
                     <button type="submit" class="btn btn-primary">
                         Зарегистрироваться
                     </button>
+                    {% else %}
+                    <button type="submit" class="btn btn-primary">
+                        Сохранить
+                    </button>
+                    {% endif %}
                 </div>
             </div>
         </form>

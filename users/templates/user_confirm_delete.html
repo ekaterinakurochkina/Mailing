@@ -15,7 +15,7 @@
         </section>
     </main>
 
-    {% if user.is_superuser %}
+    {% if object.is_superuser %}
     <p>Вы уверены, что хотите удалить пользователя "{{ object.email }}"?</p>
     <form method="post">
         {% csrf_token %}

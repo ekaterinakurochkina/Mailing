@@ -9,7 +9,7 @@ from mailing.services import get_object_from_cache
 from django.forms import inlineformset_factory
 from mailing.services import run_sending
 from django.http import HttpResponse
-
+from django.core.mail import send_mail
 
 class HomePageView(TemplateView):
     template_name = "home.html"
@@ -79,8 +79,6 @@ class SendingDetailView(LoginRequiredMixin, DetailView):
     model = Sending
     template_name = "sending_detail.html"
 
-
-#     надо дописать!
 
 class SendingUpdateView(LoginRequiredMixin, UpdateView):
     model = Sending

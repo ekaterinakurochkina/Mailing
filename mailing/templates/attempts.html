@@ -34,8 +34,8 @@
                     <td>{{ object.sending.message.subject }}</td>
                     <td>{{ object.sending.message.message_body|truncatechars:30 }}</td>
                     <td>{{ object.date_attempt}}</td>
-                    <td>{{ object.status}}</td>
-                    <td>{{ object.server_response}}</td>
+                    <td>{{ object.status_attempt}}</td>
+                    <td>{{ object.answer}}</td>
                     {% if request.user.is_superuser %}
                     <td>{{ object.sending.owner }}</td>
                     {% endif %}
