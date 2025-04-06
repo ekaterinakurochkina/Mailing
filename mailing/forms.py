@@ -19,14 +19,7 @@ class StyleFormMixin:
 class SendingForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Sending
-        fields = "__all__"
-        exclude = ("owner",)
-        success_url = reverse_lazy("mailing:sending_list")
-
-    # def create_owner(self):
-    #     owner = self.request.user
-    #     return owner
-
+        fields = ('name', 'message', 'recipient')
 
 class SendingModeratorForm(StyleFormMixin, ModelForm):  # Класс для отображения сообщений для модератора
     class Meta:

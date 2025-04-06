@@ -1,12 +1,14 @@
 import logging
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import View
 
 from config.settings import CACHE_ENABLED
@@ -25,6 +27,11 @@ def run_sending(pk):
         if not sending.is_active:
             print("Рассылка неактивна.")
             return
+
+        if sending.start_sending is None:
+            sending.start_sending = timezone.now()
+        sending.status ='launched'
+        sending.save()
 
         # Проходим по всем получателям
         for recipient in sending.recipient.all():
@@ -53,6 +60,10 @@ def run_sending(pk):
                     sending=sending,
                 )
                 print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
+            finally:
+                sending.status = 'completed'
+                sending.end_sending = timezone.now()
+                sending.save()
 
     except Sending.DoesNotExist:
         print("Рассылка не найдена.")
@@ -72,13 +83,13 @@ def statistics_view(request):
     return render(request, 'statistics.html', {'attempts': attempts})
 
 
-class BlockSendingView(LoginRequiredMixin, View):
+class BlockSendingView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'mailing.can_canceled_sending'
+
     def post(self, request, sending_id):
         sending = get_object_or_404(Sending, id=sending_id)
-
-        if request.user.has_perm('sending.can_canceled_sending'):
-            sending.is_active = {sending.is_active: False, not sending.is_active: True}[True]
-            sending.save()
+        sending.status = 'canceled'
+        sending.save()
         return redirect(reverse("mailing:sending_list"))
 
 
