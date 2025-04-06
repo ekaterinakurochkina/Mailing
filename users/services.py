@@ -13,12 +13,12 @@ def email_verification(request, token):
     return HttpResponseRedirect(reverse("users:login"))
 
 
-# @permission_required("users.can_inactivate")
-# def block_user(self, pk):
-#     user = User.objects.get(pk=pk)
-#     user.is_active = {user.is_active: False, not user.is_active: True}[True]
-#     user.save()
-#     return redirect(reverse("users:user_list"))
+@permission_required("users.can_inactivate")
+def block_user(self, pk):
+    user = User.objects.get(pk=pk)
+    user.is_active = {user.is_active: False, not user.is_active: True}[True]
+    user.save()
+    return redirect(reverse("users:user_list"))
 
 # @permission_required("users.can_canceled_sending")
 # def block_sending(self, pk):

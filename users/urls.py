@@ -3,10 +3,10 @@ from django.contrib.auth.views import LoginView
 from django.urls import path
 
 from users.apps import UsersConfig
-# from users.services import block_user
+from users.services import block_user
 from users.views import UserCreateView, UserDeleteView, UserListView, UserUpdateView, email_verification
 from users.views import logout_view, InactivateUser
-# from users.views import block_user
+
 
 
 # app_name = 'users'
@@ -21,8 +21,8 @@ urlpatterns = [
     path('users/list', UserListView.as_view(), name='user_list'),
     path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
     path('<int:pk>/edit/', UserUpdateView.as_view(), name='user_edit'),
-    path("<int:pk>/edit/", InactivateUser.as_view(), name="block_user"),
-    # path("<int:pk>/block", block_user, name="block_user"),
+    # path("<int:pk>/edit/", InactivateUser.as_view(), name="block_user"),
+    path("<int:pk>/block", block_user, name="block_user"),
 ]
 # (template_name="user_form.html")
 # login/
