@@ -24,17 +24,14 @@
     </form>
     {% else %}
     <div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
-    <h3 class="fw-light">У Вас нет прав для удаления этого пользователя</h3>
-    <a class="btn btn-primary " button
-       style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
-       href="{% url 'users:user_list' %}">Вернуться</a>
+        <h3 class="fw-light">У Вас нет прав для удаления этого пользователя</h3>
+        <a class="btn btn-primary " button
+           style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer"
+           href="{% url 'users:user_list' %}">Вернуться</a>
     </div>
     {% endif %}
     <p></p>
     <p></p>
 
 
-
-
-
-{% endblock %}
+    {% endblock %}

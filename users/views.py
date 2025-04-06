@@ -1,22 +1,65 @@
 import secrets
 
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from django.urls import reverse_lazy, reverse
-from config.settings import EMAIL_HOST_USER
-from users.forms import UserRegisterForm, UserUpdateForm, UserForm
-from users.models import User
-from django.contrib.auth import logout, login
-from django.shortcuts import redirect, get_object_or_404
 from django.core.mail import send_mail
-from config.settings import EMAIL_HOST_USER
+from django.http import HttpResponseForbidden
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import ListView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+
+from config.settings import EMAIL_HOST_USER
+from users.forms import UserRegisterForm, UserUpdateForm
+from users.models import User
 
 
 def logout_view(request):
     logout(request)
     return redirect('mailing:home')
+
+
+# class UserLogoutView(LogoutView):
+#     template_name = 'logout.html'
+
+
+# ____________________________
+# блокировка пользователя
+class InactivateUser(LoginRequiredMixin, View):
+    def post(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+
+        if not request.user.has_perm('can_inactivate'):
+            return HttpResponseForbidden('У вас нет прав для блокировки пользователя')
+
+        user.is_active = False
+        user.save()
+
+        return redirect('mailing:user_list')
+
+
+# ______________________блокировка пользователя
+# @permission_required("users.can_inactivate")
+# def block_user(self, pk):
+#     user = User.objects.get(pk=pk)
+#     user.is_active = {user.is_active: False, not user.is_active: True}[True]
+#     user.save()
+#     return redirect(reverse("users:user_list"))
+# ______________________
+
+# создаём группу "Менеджер"
+# manager_group = Group.objects.create(name="Менеджер")
+#
+# block_user_perm = Permission.objects.get(codename="can_inactivate")
+# block_sending = Permission.objects.get(codename="can_canceled_sending")
+#
+# manager_group.permissions.add(block_user_perm, block_sending)
+
+
+# __________________
 
 
 class UserListView(LoginRequiredMixin, ListView):
@@ -30,6 +73,7 @@ class UserListView(LoginRequiredMixin, ListView):
         for user in context['users']:
             user.is_manager = user.groups.filter(name="Менеджер").exists()
         return context
+
 
 # class UserDeleteView(LoginRequiredMixin, DeleteView):
 #     model = User
@@ -48,7 +92,7 @@ class UserCreateView(CreateView):
         token = secrets.token_hex(16)  # генерируем токен
         user.token = token
         user.save()
-        host = self.request.get_host()   # получаем хост, откуда пришел пользователь
+        host = self.request.get_host()  # получаем хост, откуда пришел пользователь
         url = f'http://{host}/users/email-confirm/{token}/'
         try:
             send_mail(
@@ -66,6 +110,7 @@ class UserCreateView(CreateView):
     #     context = super().get_context_data(**kwargs)
     #     context['is_manager'] = self.request.user.groups.filter(name="Менеджер").exists()
     #     return context
+
 
 def email_verification(request, token):
     user = get_object_or_404(User, token=token)
@@ -94,6 +139,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         # Загружаем объект, но проверка прав уже выполнена в dispatch
         return super().get_object(queryset)
+
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = User

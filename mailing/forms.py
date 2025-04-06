@@ -1,8 +1,8 @@
 from django.db.models import BooleanField
 from django.forms import ModelForm
-from .models import Sending, Message, MailingRecipient
-from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
+
+from .models import Sending, Message, MailingRecipient
 
 
 class StyleFormMixin:
@@ -41,10 +41,12 @@ class MessageForm(StyleFormMixin, ModelForm):
         exclude = ("owner",)
         success_url = reverse_lazy("mailing:message_list")
 
+
 class MessageModeratorForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Message
         fields = "__all__"
+
 
 class MailingRecipientForm(StyleFormMixin, ModelForm):
     class Meta:

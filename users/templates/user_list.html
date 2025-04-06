@@ -50,13 +50,13 @@
                     {% elif user.is_manager %}
                     -----------
                     {% elif user.is_authenticated %}
-                        {% if user.is_active %}
-                        <a class="btn btn-secondary"
-                           href="{% url 'users:block_user' user.pk %}">Заблокировать</a>
-                        {% else %}
-                        <a class="btn btn-secondary"
-                           href="{% url 'users:block_user' user.pk %}">Разблокировать</a>
-                        {% endif %}
+                    {% if user.is_active %}
+                    <a class="btn btn-secondary"
+                       href="{% url 'users:block_user' user.pk %}">Заблокировать</a>
+                    {% else %}
+                    <a class="btn btn-secondary"
+                       href="{% url 'users:block_user' user.pk %}">Разблокировать</a>
+                    {% endif %}
                     {% endif %}
                 </td>
                 <td>
@@ -75,8 +75,8 @@
             {% endfor %}
             </tbody>
         </table>
-    <p></p>
-    <p></p>
+        <p></p>
+        <p></p>
 
     </div>
 

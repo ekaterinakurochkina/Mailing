@@ -1,6 +1,6 @@
+from django.db import models
 from django.utils import timezone
 
-from django.db import models
 from users.models import User
 
 
@@ -17,7 +17,10 @@ class MailingRecipient(models.Model):  # Получатель рассылки
         verbose_name = 'Получатель рассылки'
         verbose_name_plural = 'Получатели рассылки'
         ordering = ['email']
-
+        permissions = [
+            ('can_inactivate', 'Может блокировать пользователя'),
+            ('can_canceled_sending', 'Может блокировать рассылку'),
+        ]
 
 class Message(models.Model):  # Сообщение
     # sending = models.ForeignKey(Sending, related_name="subject", on_delete=models.SET_NULL, null=True, blank=True,
@@ -34,7 +37,10 @@ class Message(models.Model):  # Сообщение
         verbose_name = 'Сообщение'
         verbose_name_plural = 'Сообщения'
         ordering = ['subject']
-
+        permissions = [
+            ('can_inactivate', 'Может блокировать пользователя'),
+            ('can_canceled_sending', 'Может блокировать рассылку'),
+        ]
 
 class Sending(models.Model):  # Рассылка
     name = models.CharField(max_length=100, verbose_name='Название рассылки')
@@ -65,21 +71,26 @@ class Sending(models.Model):  # Рассылка
         verbose_name_plural = 'Рассылки'
         ordering = ['status']
         permissions = [
-            ('can_canceled_sending', 'Может блокировать рассылку ')
+            ('can_inactivate', 'Может блокировать пользователя'),
+            ('can_canceled_sending', 'Может блокировать рассылку'),
         ]
 
 
+
 class MailingAttempt(models.Model):  # Попытка рассылки
-    date_attempt = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время попытки рассылки')  # Дата и время попытки
+    date_attempt = models.DateTimeField(auto_now_add=True,
+                                        verbose_name='Дата и время попытки рассылки')  # Дата и время попытки
     STATUS_CHOICES = [
         ('successfully', 'Успешно'),
         ('unsuccessful', 'Неуспешно'),
     ]
-    status_attempt = models.CharField(max_length=15, choices=STATUS_CHOICES, verbose_name='Статус полытки')  # Статус: успешно/неуспешно
+    status_attempt = models.CharField(max_length=15, choices=STATUS_CHOICES,
+                                      verbose_name='Статус полытки')  # Статус: успешно/неуспешно
     answer = models.TextField(blank=True, null=True, verbose_name='Ответ почтового сервера')  # ответ почтового сервера
     sending = models.ForeignKey(Sending, on_delete=models.PROTECT)  # рассылка (внешн.ключ на модель Рассылка)
     # owner = models.ForeignKey(User, null=True, on_delete=models.CASCADE) # Связь с пользователем
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
     def __str__(self):
         return f"{self.status_attempt} - {self.sending.id} - {self.created_at}"
 

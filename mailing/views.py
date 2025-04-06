@@ -1,15 +1,19 @@
-from django.views.generic.edit import DeleteView, CreateView, UpdateView
-from django.views.generic import ListView, DetailView, TemplateView
-from .forms import SendingForm, SendingModeratorForm, MessageForm, MailingRecipientForm, MessageModeratorForm
-from .models import MailingRecipient, Message, Sending, MailingAttempt
-from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from mailing.services import get_object_from_cache
-from django.forms import inlineformset_factory
-from mailing.services import run_sending
 from django.http import HttpResponse
-from django.core.mail import send_mail
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic import View
+from django.views.generic.edit import DeleteView, CreateView, UpdateView
+
+from mailing.services import get_object_from_cache
+from mailing.services import run_sending
+from users.models import User
+from .forms import SendingForm, SendingModeratorForm, MessageForm, MailingRecipientForm
+from .models import MailingRecipient, Message, Sending, MailingAttempt
+
 
 class HomePageView(TemplateView):
     template_name = "home.html"
@@ -157,6 +161,7 @@ def trigger_sending(request, pk):
     run_sending(pk)  # Здесь передаем pk как позиционный аргумент
     return HttpResponse("Рассылка завершена.")
 
+
 # Виджеты для сообщений _______________________________________________________________________________________________
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -190,16 +195,10 @@ class MessageListView(LoginRequiredMixin, ListView):
         context["мessage_id"] = Message.id
         return context
 
-    def get_object(self, queryset=None):
-        self.object = super().get_object(queryset)
-        if self.request.user.is_superuser or self.request.user.groups.filter(
-                name="Менеджер") or self.object.owner == self.request.user:
-            return self.object
-        raise PermissionDenied
 
     def get_queryset(self):
         user = self.request.user
-        if user.has_perm("mailing.can_canceled_message"):
+        if user.has_perm("mailing.can_canceled_sending"):
             return get_object_from_cache()  # подключаем к представлению функцию обращения к кешу
         else:
             return Message.objects.filter(owner=user)
@@ -339,3 +338,9 @@ class MailingRecipientDeleteView(LoginRequiredMixin, DeleteView):
         if self.object.owner != self.request.user and not self.request.user.is_superuser:
             raise PermissionDenied
         return self.object
+
+
+
+
+# ____________________________
+# блокировка рассылки

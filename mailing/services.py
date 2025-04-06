@@ -1,26 +1,20 @@
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-from django.views.generic import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from config.settings import CACHE_ENABLED
-from mailing.models import MailingRecipient, Message, MailingAttempt
-from django.core.cache import cache
-from django.http import HttpResponseForbidden
-from config.settings import CACHE_ENABLED, EMAIL_HOST_USER
-from mailing.models import Sending
-from users.models import User
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect
-from django.core.mail import send_mail
-from django.utils import timezone
 import logging
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import render
+from django.urls import reverse
+from django.views.generic import View
+
+from config.settings import CACHE_ENABLED
 
 logger = logging.getLogger(__name__)
 
-
 from .models import MailingAttempt, Sending
+
 
 def run_sending(pk):
     try:
@@ -45,6 +39,7 @@ def run_sending(pk):
                 # Логируем успешную попытку
                 MailingAttempt.objects.create(
                     status_attempt='successfully',
+                    owner=sending.owner,
                     sending=sending,
                 )
                 print(f"Сообщение успешно отправлено на {recipient.email}")
@@ -54,14 +49,13 @@ def run_sending(pk):
                 MailingAttempt.objects.create(
                     status_attempt='unsuccessful',
                     answer=str(e),
+                    owner=sending.owner,
                     sending=sending,
                 )
                 print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
 
     except Sending.DoesNotExist:
         print("Рассылка не найдена.")
-
-
 
 
 def statistics_view(request):
@@ -72,7 +66,8 @@ def statistics_view(request):
     elif user.groups.filter(name='Менеджер').exists():
         attempts = MailingAttempt.objects.all().order_by('-date_attempt')  # Все попытки для менеджера
     else:
-        attempts = MailingAttempt.objects.filter(owner=user).order_by('-date_attempt')  # Только свои рассылки для обычного пользователя
+        attempts = MailingAttempt.objects.filter(owner=user).order_by(
+            '-date_attempt')  # Только свои рассылки для обычного пользователя
 
     return render(request, 'statistics.html', {'attempts': attempts})
 
@@ -162,62 +157,52 @@ def get_attempt_from_cache():
 def get_object_from_cache():
     """Функция низкоуровневого кеширования для списка рассылок"""
     if not CACHE_ENABLED:
-        return Sending.objects.all() # проверяем, используется ли кеширование в проекте
-    key = "sending_list"        # задаем ключ
-    sendings = cache.get(key)   # обращаемся в кеш по этому ключу
+        return Sending.objects.all()  # проверяем, используется ли кеширование в проекте
+    key = "sending_list"  # задаем ключ
+    sendings = cache.get(key)  # обращаемся в кеш по этому ключу
     if sendings is not None:
-        return sendings         # если кеш пуст
-    sendings = Sending.objects.all()    # забираем список рассылок из БД
-    cache.set(key, sendings)    # записываем этот список в кеш
-    return sendings             # и выдаем пользователю
-
-def send_mail(mailing):
-    for recipient in mailing.recipients.all():
-        try:
-            send_mail(
-                mailing.message.subject,
-                mailing.message.message_body,
-                'From-garden@yandex.ru',
-                [recipient.email],
-            )
-            status = 'successfully'
-            response = 'Сообщение отправлено'
-        except Exception as e:
-            status = 'unsuccessful'
-            response = str(e)
-
-        # Создаем попытку отправки рассылки
-        MailingAttempt.objects.create(
-            mailing=mailing,
-            recipient=recipient,
-            status=status,
-            response=response
-        )
-
-class InactivateSending(LoginRequiredMixin, View):
-    def post(self,request, sending_id):
-        sending = get_object_or_404(Sending, id=sending_id)
-
-        if not request.user.has_perm('can_canceled_sending'):
-            return HttpResponseForbidden('У вас нет прав для блокировки рассылки')
-
-        sending.status = 'canceled'
-        sending.save()
-
-        return redirect('mailing:sending_list')
+        return sendings  # если кеш пуст
+    sendings = Sending.objects.all()  # забираем список рассылок из БД
+    cache.set(key, sendings)  # записываем этот список в кеш
+    return sendings  # и выдаем пользователю
 
 
-class InactivateUser(LoginRequiredMixin, View):
-    def post(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
+# def send_mail(mailing):
+#     for recipient in mailing.recipients.all():
+#         try:
+#             send_mail(
+#                 mailing.message.subject,
+#                 mailing.message.message_body,
+#                 'From-garden@yandex.ru',
+#                 [recipient.email],
+#             )
+#             status = 'successfully'
+#             response = 'Сообщение отправлено'
+#         except Exception as e:
+#             status = 'unsuccessful'
+#             response = str(e)
+#
+#         # Создаем попытку отправки рассылки
+#         MailingAttempt.objects.create(
+#             mailing=mailing,
+#             recipient=recipient,
+#             status=status,
+#             response=response
+#         )
 
-        if not request.user.has_perm('can_inactivate'):
-            return HttpResponseForbidden('У вас нет прав для блокировки рассылки')
 
-        user.is_active = False
-        user.save()
 
-        return redirect('mailing:sending_list')
+# class InactivateUser(LoginRequiredMixin, View):
+#     def post(self, request, user_id):
+#         user = get_object_or_404(User, id=user_id)
+#
+#         if not request.user.has_perm('can_inactivate'):
+#             return HttpResponseForbidden('У вас нет прав для блокировки рассылки')
+#
+#         user.is_active = False
+#         user.save()
+#
+#         return redirect('mailing:sending_list')
 
 # def run_mailing(request, pk):
 #     """Функция запуска рассылки по требованию"""

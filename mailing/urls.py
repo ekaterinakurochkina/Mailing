@@ -1,12 +1,12 @@
 from django.urls import path
+
 from mailing.apps import MailingConfig
+from mailing.services import BlockSendingView
 from mailing.views import HomePageView
-from mailing.views import SendingCreateView, SendingDeleteView, SendingUpdateView, SendingListView, SendingDetailView
-from mailing.views import MessageListView, MessageDetailView, MessageUpdateView, MessageDeleteView, MessageCreateView
 from mailing.views import MailingRecipientCreateView, MailingRecipientListView, MailingRecipientDetailView, \
     MailingRecipientUpdateView, MailingRecipientDeleteView, AttemptListView, trigger_sending
-from mailing.services import run_sending, statistics_view
-from mailing.services import BlockSendingView
+from mailing.views import MessageListView, MessageDetailView, MessageUpdateView, MessageDeleteView, MessageCreateView
+from mailing.views import SendingCreateView, SendingDeleteView, SendingUpdateView, SendingListView, SendingDetailView
 
 app_name = MailingConfig.name
 
@@ -33,5 +33,5 @@ urlpatterns = [
     path('<int:pk>/block', BlockSendingView.as_view(), name='block_sending'),
     # path('statistics/', statistics_view, name='statistics_view'),
     # path("block_sending/<int:pk>", block_mailing, name="block_mailing"),
-# path("<int:pk>/block", block_user, name="block_user")
+    # path("<int:pk>/block", block_user, name="block_user")
 ]

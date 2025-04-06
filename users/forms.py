@@ -1,12 +1,10 @@
 from django import forms
-from django.urls import reverse_lazy
-from django.forms import ModelForm
-from django.contrib.auth.forms import AuthenticationForm, UserChangeForm, UserCreationForm
-from .models import User
+from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
 from django.contrib.auth.forms import UserCreationForm
-from mailing.forms import StyleFormMixin
+from django.forms import ModelForm
 
-from django.core.exceptions import ValidationError
+from mailing.forms import StyleFormMixin
+from .models import User
 
 
 class UserForm(StyleFormMixin, UserChangeForm):
