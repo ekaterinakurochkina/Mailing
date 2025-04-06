@@ -17,7 +17,7 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
     # path('logout/', UserLogoutView.as_view(), name='logout'),
     path('register/', UserCreateView.as_view(template_name="user_form.html"), name='register'),
-    path('email-confirm/<str:token>', email_verification, name='email-confirm'),
+    path('email-confirm/<str:token>/', email_verification, name='email-confirm'),
     path('users/list', UserListView.as_view(), name='user_list'),
     path('users/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
     path('<int:pk>/edit/', UserUpdateView.as_view(), name='user_edit'),

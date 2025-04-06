@@ -31,7 +31,6 @@ class HomePageView(TemplateView):
 class SendingCreateView(LoginRequiredMixin, CreateView):
     model = Sending
     form_class = SendingForm
-    # fields = ["name", 'recipient', 'message']
     template_name = "sending_form.html"
     success_url = reverse_lazy("mailing:sending_list")
 
@@ -42,14 +41,11 @@ class SendingCreateView(LoginRequiredMixin, CreateView):
         sending.save()
         return super().form_valid(form)
 
-    # def form_valid(self, form):
-    #     recipient = form.save()
-    #     recipient.owner = self.request.user
-    #     recipient.save()
-    #     return super().form_valid(form)
-
-    def test_func(self):
-        return self.request.user.groups.filter(name="Пользователь").exists() or self.request.user.is_superuser
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['recipient'].queryset = MailingRecipient.objects.filter(owner=self.request.user)
+        form.fields['message'].queryset = Message.objects.filter(owner=self.request.user)
+        return form
 
 
 class SendingListView(LoginRequiredMixin, ListView):
@@ -65,18 +61,11 @@ class SendingListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        if self.request.user.is_superuser or self.request.user.groups.filter(name="Менеджер").exists():
-            return super().get_queryset()
-        elif self.request.user.groups.filter(name="Пользователь").exists():
-            return super().get_queryset().filter(owner=self.request.user)
-        raise PermissionDenied
-
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.has_perm("mailing.can_canceled_sending"):
-    #         return get_object_from_cache()  # подключаем к представлению функцию обращения к кешу
-    #     else:
-    #         return Sending.objects.filter(owner=user)
+        qs = super().get_queryset()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_superuser or self.request.user.is_moderator:
+                return qs
+        return qs.filter(owner=self.request.user)
 
 
 class SendingDetailView(LoginRequiredMixin, DetailView):
@@ -293,11 +282,12 @@ class MailingRecipientListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        if self.request.user.is_superuser or self.request.user.groups.filter(name="Менеджер"):
-            return super().get_queryset()
-        elif self.request.user.groups.filter(name="Пользователь"):
-            return super().get_queryset().filter(owner=self.request.user)
-        raise PermissionDenied
+        qs = super().get_queryset()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_superuser or  self.request.user.is_moderator:
+                return qs
+        return qs.filter(owner=self.request.user)
+
 
 
 class MailingRecipientDetailView(LoginRequiredMixin, DetailView):

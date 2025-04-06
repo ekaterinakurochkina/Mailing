@@ -44,10 +44,8 @@ class Message(models.Model):  # Сообщение
 
 class Sending(models.Model):  # Рассылка
     name = models.CharField(max_length=100, verbose_name='Название рассылки')
-    start_sending = models.DateTimeField(verbose_name='Дата и время начала рассылки',
-                                         default=timezone.now)  # Дата и время первой отправки
-    end_sending = models.DateTimeField(verbose_name='Дата и время окончания рассылки', null=True,
-                                       blank=True)  # Дата и время окончания отправки
+    start_sending = models.DateTimeField(verbose_name='Дата и время начала рассылки', null=True, blank=True)
+    end_sending = models.DateTimeField(verbose_name='Дата и время окончания рассылки', null=True, blank=True)
     STATUS_CHOICES = [
         ('created', 'Создана'),
         ('launched', 'Запущена'),
@@ -59,12 +57,11 @@ class Sending(models.Model):  # Рассылка
                                 verbose_name="Сообщение")  # Сообщение
     recipient = models.ManyToManyField(MailingRecipient,
                                        verbose_name='Укажите получателей рассылки')  # Получатели (связь с моделью Получатель)
-    is_active = models.BooleanField(default=True, verbose_name='Действительный')
+    # is_active = models.BooleanField(default=True, verbose_name='Действительный')
     owner = models.ForeignKey(User, verbose_name='Владелец', help_text='Владелец рассылки', blank=True, null=True,
                               on_delete=models.SET_NULL)
 
-    def __str__(self):
-        return self.name
+
 
     class Meta:
         verbose_name = 'Рассылка'
@@ -75,6 +72,12 @@ class Sending(models.Model):  # Рассылка
             ('can_canceled_sending', 'Может блокировать рассылку'),
         ]
 
+    @property
+    def is_active(self) -> bool:
+        return not self.status == 'canceled'
+
+    def __str__(self):
+        return self.name
 
 
 class MailingAttempt(models.Model):  # Попытка рассылки
