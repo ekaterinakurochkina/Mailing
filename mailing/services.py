@@ -18,10 +18,11 @@ logger = logging.getLogger(__name__)
 from .models import MailingAttempt, Sending
 
 
-def run_sending(pk):
+def run_sending(sending_id):
     try:
         # Получаем рассылку по ID
-        sending = Sending.objects.get(id=pk)
+        sending = get_object_or_404(Sending, id=sending_id)
+        # sending = Sending.objects.get(id=sending_id)
 
         # Проверяем, активна ли рассылка
         if not sending.is_active:
@@ -64,6 +65,7 @@ def run_sending(pk):
                 sending.status = 'completed'
                 sending.end_sending = timezone.now()
                 sending.save()
+                # redirect("mailing:sending_list")
 
     except Sending.DoesNotExist:
         print("Рассылка не найдена.")
@@ -89,6 +91,15 @@ class BlockSendingView(LoginRequiredMixin, PermissionRequiredMixin, View):
     def post(self, request, sending_id):
         sending = get_object_or_404(Sending, id=sending_id)
         sending.status = 'canceled'
+        sending.save()
+        return redirect(reverse("mailing:sending_list"))
+
+class UnblockSendingView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'mailing.can_canceled_sending'
+
+    def post(self, request, sending_id):
+        sending = get_object_or_404(Sending, id=sending_id)
+        sending.status = 'created'
         sending.save()
         return redirect(reverse("mailing:sending_list"))
 

@@ -146,10 +146,6 @@ class AttemptCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-def trigger_sending(request, pk):
-    run_sending(pk)  # Здесь передаем pk как позиционный аргумент
-    return HttpResponse("Рассылка завершена.")
-
 
 # Виджеты для сообщений _______________________________________________________________________________________________
 
@@ -184,13 +180,13 @@ class MessageListView(LoginRequiredMixin, ListView):
         context["мessage_id"] = Message.id
         return context
 
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.has_perm("mailing.can_canceled_sending"):
-            return get_object_from_cache()  # подключаем к представлению функцию обращения к кешу
-        else:
-            return Message.objects.filter(owner=user)
+    # trigger_sending
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     if user.has_perm("mailing.can_canceled_sending"):
+    #         return get_object_from_cache()  # подключаем к представлению функцию обращения к кешу
+    #     else:
+    #         return Message.objects.filter(owner=user)
 
 
 class MessageDetailView(LoginRequiredMixin, DetailView):
