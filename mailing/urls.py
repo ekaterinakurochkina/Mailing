@@ -1,7 +1,8 @@
 from django.urls import path
-
 from mailing.apps import MailingConfig
-from mailing.services import BlockSendingView, run_sending, UnblockSendingView
+from mailing.services import BlockSendingView, UnblockSendingView, RunSendingView
+
+# from mailing.services import  run_sending
 from mailing.views import HomePageView
 from mailing.views import MailingRecipientCreateView, MailingRecipientListView, MailingRecipientDetailView, \
     MailingRecipientUpdateView, MailingRecipientDeleteView, AttemptListView
@@ -29,7 +30,8 @@ urlpatterns = [
     path('recipient/<int:pk>/edit/', MailingRecipientUpdateView.as_view(), name='recipient_edit'),
     path('recipient/<int:pk>/delete/', MailingRecipientDeleteView.as_view(), name='recipient_delete'),
     path('attempts/', AttemptListView.as_view(), name='attempts'),
-    path('sending/<int:sending_id>/run/', run_sending, name='run_sending'),
+    # path('sending/<int:sending_id>/run/', run_sending, name='run_sending'),
+    path('sending/<int:sending_id>/run/', RunSendingView.as_view(), name='run_sending'),
     path('<int:sending_id>/block/', BlockSendingView.as_view(), name='block_sending'),
     path('<int:sending_id>/unblock/', UnblockSendingView.as_view(), name='unblock_sending'),
     # path('statistics/', statistics_view, name='statistics_view'),

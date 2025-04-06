@@ -47,7 +47,7 @@
         <td><a class="btn btn-primary " button style="width: 150px;" role="button"
                href="{% url 'mailing:sending_detail' sending.pk %}">Посмотреть</a></td>
         <td style="width: 250px;padding-left: 10px;">
-
+            {% if perms.users.can_canceled_sending %}
             {% if sending.is_active %}
             <form action="{% url 'mailing:block_sending' sending.id %}" method="post">
                 {% csrf_token %}
@@ -63,7 +63,7 @@
                 </button>
             </form>
             {% endif %}
-
+            {% endif %}
         </td>
     </tr>
     {% endfor %}
