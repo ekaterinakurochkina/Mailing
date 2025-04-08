@@ -1,11 +1,11 @@
 from django.urls import path
 from mailing.apps import MailingConfig
-from mailing.services import BlockSendingView, UnblockSendingView, RunSendingView
+from mailing.services import BlockSendingView, UnblockSendingView
 
 # from mailing.services import  run_sending
 from mailing.views import HomePageView
 from mailing.views import MailingRecipientCreateView, MailingRecipientListView, MailingRecipientDetailView, \
-    MailingRecipientUpdateView, MailingRecipientDeleteView, AttemptListView
+    MailingRecipientUpdateView, MailingRecipientDeleteView, AttemptListView, RunSendingView
 from mailing.views import MessageListView, MessageDetailView, MessageUpdateView, MessageDeleteView, MessageCreateView
 from mailing.views import SendingCreateView, SendingDeleteView, SendingUpdateView, SendingListView, SendingDetailView
 

@@ -1,17 +1,18 @@
+
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404, redirect
+from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic import View
 from django.views.generic.edit import DeleteView, CreateView, UpdateView
 
-from mailing.services import get_object_from_cache
-from mailing.services import RunSendingView
-from users.models import User
-from .forms import SendingForm, SendingModeratorForm, MessageForm, MailingRecipientForm
+from .forms import SendingForm, MessageForm, MailingRecipientForm
 from .models import MailingRecipient, Message, Sending, MailingAttempt
 
 
@@ -63,7 +64,7 @@ class SendingListView(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset()
         if self.request.user.is_authenticated:
-            if self.request.user.is_superuser or  self.request.user.is_moderator:
+            if self.request.user.is_superuser or self.request.user.is_moderator:
                 return qs
         return qs.filter(owner=self.request.user)
 
@@ -119,9 +120,10 @@ class AttemptListView(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset()
         if self.request.user.is_authenticated:
-            if self.request.user.is_superuser or  self.request.user.is_moderator:
+            if self.request.user.is_superuser or self.request.user.is_moderator:
                 return qs
         return qs.filter(owner=self.request.user)
+
 
 class AttemptCreateView(LoginRequiredMixin, CreateView):
     model = MailingAttempt
@@ -133,7 +135,6 @@ class AttemptCreateView(LoginRequiredMixin, CreateView):
         recipient.owner = self.request.user
         recipient.save()
         return super().form_valid(form)
-
 
 
 # Виджеты для сообщений _______________________________________________________________________________________________
@@ -153,7 +154,6 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-
 class MessageListView(LoginRequiredMixin, ListView):
     model = Message
     template_name = "message_list.html"
@@ -163,7 +163,7 @@ class MessageListView(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset()
         if self.request.user.is_authenticated:
-            if self.request.user.is_superuser or  self.request.user.is_moderator:
+            if self.request.user.is_superuser or self.request.user.is_moderator:
                 return qs
         return qs.filter(owner=self.request.user)
 
@@ -248,10 +248,9 @@ class MailingRecipientListView(LoginRequiredMixin, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset()
         if self.request.user.is_authenticated:
-            if self.request.user.is_superuser or  self.request.user.is_moderator:
+            if self.request.user.is_superuser or self.request.user.is_moderator:
                 return qs
         return qs.filter(owner=self.request.user)
-
 
 
 class MailingRecipientDetailView(LoginRequiredMixin, DetailView):
@@ -263,6 +262,7 @@ class MailingRecipientDetailView(LoginRequiredMixin, DetailView):
         if self.object.owner != self.request.user and not self.request.user.is_superuser:
             raise PermissionDenied
         return self.object
+
 
 class MailingRecipientUpdateView(LoginRequiredMixin, UpdateView):
     model = MailingRecipient
@@ -291,7 +291,83 @@ class MailingRecipientDeleteView(LoginRequiredMixin, DeleteView):
         return self.object
 
 
-
-
 # ____________________________
-# блокировка рассылки
+# def send_mail(mailing):
+#     for recipient in mailing.recipients.all():
+#         try:
+#             send_mail(
+#                 mailing.message.subject,
+#                 mailing.message.message_body,
+#                 'From-garden@yandex.ru',
+#                 [recipient.email],
+#             )
+#             status = 'successfully'
+#             response = 'Сообщение отправлено'
+#         except Exception as e:
+#             status = 'unsuccessful'
+#             response = str(e)
+#
+#         # Создаем попытку отправки рассылки
+#         MailingAttempt.objects.create(
+#             mailing=mailing,
+#             recipient=recipient,
+#             status=status,
+#             response=response
+#         )
+
+
+class RunSendingView(View):
+    def post(self, request, sending_id):
+        return self.run_sending(sending_id)
+
+    def run_sending(self, sending_id):
+        try:
+            # Получаем рассылку по ID
+            sending = get_object_or_404(Sending, id=sending_id)
+
+            # Проверяем, активна ли рассылка
+            if not sending.is_active:
+                print("Рассылка неактивна.")
+                return
+
+            if sending.start_sending is None:
+                sending.start_sending = timezone.now()
+            sending.status = 'launched'
+            sending.save()
+
+            # Проходим по всем получателям
+            for recipient in sending.recipient.all():
+                try:
+                    # Отправляем сообщение
+                    send_mail(
+                        subject=sending.message.subject,
+                        message=sending.message.message_body,
+                        from_email='From-garden@yandex.ru',
+                        recipient_list=[recipient.email],
+                    )
+                    # Логируем успешную попытку
+                    MailingAttempt.objects.create(
+                        status_attempt='successfully',
+                        owner=sending.owner,
+                        sending=sending,
+                    )
+                    print(f"Сообщение успешно отправлено на {recipient.email}")
+
+                except Exception as e:
+                    # Логируем неуспешную попытку
+                    MailingAttempt.objects.create(
+                        status_attempt='unsuccessful',
+                        answer=str(e),
+                        owner=sending.owner,
+                        sending=sending,
+                    )
+                    print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
+
+            sending.status = 'completed'
+            sending.end_sending = timezone.now()
+            sending.save()
+
+        except Sending.DoesNotExist:
+            print("Рассылка не найдена.")
+
+        return HttpResponseRedirect(reverse('mailing:sending_list'))  # Перенаправление после завершения

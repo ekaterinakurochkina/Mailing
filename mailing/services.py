@@ -1,15 +1,9 @@
 import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import Group
 from django.core.cache import cache
-from django.core.mail import send_mail
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
-from django.urls import reverse
-from django.utils import timezone
-from django.views.generic import View
 
 from config.settings import CACHE_ENABLED
 
@@ -17,117 +11,7 @@ logger = logging.getLogger(__name__)
 
 from .models import MailingAttempt, Sending
 from django.views import View
-from django.http import HttpResponseRedirect
 from django.urls import reverse
-
-class RunSendingView(View):
-    def get(self, request, sending_id):
-        return self.run_sending(sending_id)
-
-    def run_sending(self, sending_id):
-        try:
-            # Получаем рассылку по ID
-            sending = get_object_or_404(Sending, id=sending_id)
-
-            # Проверяем, активна ли рассылка
-            if not sending.is_active:
-                print("Рассылка неактивна.")
-                return
-
-            if sending.start_sending is None:
-                sending.start_sending = timezone.now()
-            sending.status = 'launched'
-            sending.save()
-
-            # Проходим по всем получателям
-            for recipient in sending.recipient.all():
-                try:
-                    # Отправляем сообщение
-                    send_mail(
-                        subject=sending.message.subject,
-                        message=sending.message.message_body,
-                        from_email='From-garden@yandex.ru',
-                        recipient_list=[recipient.email],
-                    )
-                    # Логируем успешную попытку
-                    MailingAttempt.objects.create(
-                        status_attempt='successfully',
-                        owner=sending.owner,
-                        sending=sending,
-                    )
-                    print(f"Сообщение успешно отправлено на {recipient.email}")
-
-                except Exception as e:
-                    # Логируем неуспешную попытку
-                    MailingAttempt.objects.create(
-                        status_attempt='unsuccessful',
-                        answer=str(e),
-                        owner=sending.owner,
-                        sending=sending,
-                    )
-                    print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
-
-            sending.status = 'completed'
-            sending.end_sending = timezone.now()
-            sending.save()
-
-        except Sending.DoesNotExist:
-            print("Рассылка не найдена.")
-
-        return HttpResponseRedirect(reverse('mailing:sending_list'))  # Перенаправление после завершения
-
-
-# def run_sending(sending_id):
-#     try:
-#         # Получаем рассылку по ID
-#         sending = get_object_or_404(Sending, id=sending_id)
-#         # sending = Sending.objects.get(id=sending_id)
-#
-#         # Проверяем, активна ли рассылка
-#         if not sending.is_active:
-#             print("Рассылка неактивна.")
-#             return
-#
-#         if sending.start_sending is None:
-#             sending.start_sending = timezone.now()
-#         sending.status ='launched'
-#         sending.save()
-#
-#         # Проходим по всем получателям
-#         for recipient in sending.recipient.all():
-#             try:
-#                 # Отправляем сообщение
-#                 send_mail(
-#                     subject=sending.message.subject,
-#                     message=sending.message.message_body,
-#                     from_email='From-garden@yandex.ru',
-#                     recipient_list=[recipient.email],
-#                 )
-#                 # Логируем успешную попытку
-#                 MailingAttempt.objects.create(
-#                     status_attempt='successfully',
-#                     owner=sending.owner,
-#                     sending=sending,
-#                 )
-#                 print(f"Сообщение успешно отправлено на {recipient.email}")
-#
-#             except Exception as e:
-#                 # Логируем неуспешную попытку
-#                 MailingAttempt.objects.create(
-#                     status_attempt='unsuccessful',
-#                     answer=str(e),
-#                     owner=sending.owner,
-#                     sending=sending,
-#                 )
-#                 print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
-#             finally:
-#                 sending.status = 'completed'
-#                 sending.end_sending = timezone.now()
-#                 sending.save()
-#                 # redirect("mailing:sending_list")
-#
-#     except Sending.DoesNotExist:
-#         print("Рассылка не найдена.")
 
 
 def statistics_view(request):
@@ -152,6 +36,7 @@ class BlockSendingView(LoginRequiredMixin, PermissionRequiredMixin, View):
         sending.status = 'canceled'
         sending.save()
         return redirect(reverse("mailing:sending_list"))
+
 
 class UnblockSendingView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = 'mailing.can_canceled_sending'
@@ -247,7 +132,6 @@ def get_object_from_cache():
     cache.set(key, sendings)  # записываем этот список в кеш
     return sendings  # и выдаем пользователю
 
-
 # def send_mail(mailing):
 #     for recipient in mailing.recipients.all():
 #         try:
@@ -270,7 +154,6 @@ def get_object_from_cache():
 #             status=status,
 #             response=response
 #         )
-
 
 
 # class InactivateUser(LoginRequiredMixin, View):
@@ -324,3 +207,56 @@ def get_object_from_cache():
 # ('canceled', 'Отменена'),
 # ('successfully', 'Успешно'),
 # ('unsuccessful', 'Неуспешно'),
+
+
+# def run_sending(sending_id):
+#     try:
+#         # Получаем рассылку по ID
+#         sending = get_object_or_404(Sending, id=sending_id)
+#         # sending = Sending.objects.get(id=sending_id)
+#
+#         # Проверяем, активна ли рассылка
+#         if not sending.is_active:
+#             print("Рассылка неактивна.")
+#             return
+#
+#         if sending.start_sending is None:
+#             sending.start_sending = timezone.now()
+#         sending.status ='launched'
+#         sending.save()
+#
+#         # Проходим по всем получателям
+#         for recipient in sending.recipient.all():
+#             try:
+#                 # Отправляем сообщение
+#                 send_mail(
+#                     subject=sending.message.subject,
+#                     message=sending.message.message_body,
+#                     from_email='From-garden@yandex.ru',
+#                     recipient_list=[recipient.email],
+#                 )
+#                 # Логируем успешную попытку
+#                 MailingAttempt.objects.create(
+#                     status_attempt='successfully',
+#                     owner=sending.owner,
+#                     sending=sending,
+#                 )
+#                 print(f"Сообщение успешно отправлено на {recipient.email}")
+#
+#             except Exception as e:
+#                 # Логируем неуспешную попытку
+#                 MailingAttempt.objects.create(
+#                     status_attempt='unsuccessful',
+#                     answer=str(e),
+#                     owner=sending.owner,
+#                     sending=sending,
+#                 )
+#                 print(f"Ошибка при отправке на {recipient.email}: {str(e)}")
+#             finally:
+#                 sending.status = 'completed'
+#                 sending.end_sending = timezone.now()
+#                 sending.save()
+#                 # redirect("mailing:sending_list")
+#
+#     except Sending.DoesNotExist:
+#         print("Рассылка не найдена.")

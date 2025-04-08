@@ -55,7 +55,7 @@
                        href="{% url 'users:block_user' user.pk %}">Заблокировать</a>
                     {% else %}
                     <a class="btn btn-secondary"
-                       href="{% url 'users:block_user' user.pk %}">Разблокировать</a>
+                       href="{% url 'users:unblock_user' user.pk %}">Разблокировать</a>
                     {% endif %}
                     {% endif %}
                 </td>

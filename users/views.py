@@ -1,12 +1,14 @@
 import secrets
 
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Permission, Group
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView
@@ -28,35 +30,45 @@ def logout_view(request):
 
 # ____________________________
 # блокировка пользователя
-class InactivateUser(LoginRequiredMixin, View):
-    def post(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
-
-        if not request.user.has_perm('can_inactivate'):
-            return HttpResponseForbidden('У вас нет прав для блокировки пользователя')
-
-        user.is_active = False
-        user.save()
-
-        return redirect('mailing:user_list')
+# class InactivateUser(LoginRequiredMixin, View):
+#     def post(self, request, user_id):
+#         user = get_object_or_404(User, id=user_id)
+#
+#         if not request.user.has_perm('can_inactivate'):
+#             return HttpResponseForbidden('У вас нет прав для блокировки пользователя')
+#
+#         user.is_active = False
+#         user.save()
+#
+#         return redirect('mailing:user_list')
 
 
 # ______________________блокировка пользователя
-# @permission_required("users.can_inactivate")
-# def block_user(self, pk):
-#     user = User.objects.get(pk=pk)
-#     user.is_active = {user.is_active: False, not user.is_active: True}[True]
-#     user.save()
-#     return redirect(reverse("users:user_list"))
+@permission_required("users.can_inactivate")
+def block_user(self, pk):
+    user = get_object_or_404(User, pk=pk)
+    user.is_active = False
+    user.save()
+    return redirect(reverse("users:user_list"))
+
+
+# ______________________разблокировка пользователя
+@permission_required("users.can_inactivate")
+def unblock_user(self, pk):
+    user = get_object_or_404(User, pk=pk)
+    user.is_active = True
+    user.save()
+    return redirect(reverse("users:user_list"))
 # ______________________
 
 # создаём группу "Менеджер"
-# manager_group = Group.objects.create(name="Менеджер")
-#
-# block_user_perm = Permission.objects.get(codename="can_inactivate")
-# block_sending = Permission.objects.get(codename="can_canceled_sending")
-#
-# manager_group.permissions.add(block_user_perm, block_sending)
+if not Group(name="Менеджер"):
+    manager_group = Group.objects.create(name="Менеджер")
+
+    block_user_perm = Permission.objects.get(codename="can_inactivate")
+    block_sending = Permission.objects.get(codename="can_canceled_sending")
+
+    manager_group.permissions.add(block_user_perm, block_sending)
 
 
 # __________________

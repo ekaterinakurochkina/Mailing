@@ -9,7 +9,6 @@ class User(AbstractUser):
                              help_text="Введите номер телефона")
     avatar = models.ImageField(upload_to="users/avatars", verbose_name="Аватар", blank=True, null=True,
                                help_text='Загрузите свой аватар')
-    is_active = models.BooleanField(default=True, verbose_name="Действующий")
     token = models.CharField(max_length=100, verbose_name="Token", blank=True, null=True)
     description = models.CharField(max_length=100, verbose_name="Имя", blank=True, null=True,
                                    help_text="Введите ваше имя")
