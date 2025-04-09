@@ -3,14 +3,11 @@ import secrets
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Permission, Group
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
-from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.urls import reverse_lazy
-from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
@@ -59,16 +56,9 @@ def unblock_user(self, pk):
     user.is_active = True
     user.save()
     return redirect(reverse("users:user_list"))
+
+
 # ______________________
-
-# создаём группу "Менеджер"
-if not Group(name="Менеджер"):
-    manager_group = Group.objects.create(name="Менеджер")
-
-    block_user_perm = Permission.objects.get(codename="can_inactivate")
-    block_sending = Permission.objects.get(codename="can_canceled_sending")
-
-    manager_group.permissions.add(block_user_perm, block_sending)
 
 
 # __________________
