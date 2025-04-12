@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+<title>Статистика</title>
+
+{% block content %}
+<div class="container marketing mt-5">
+    <div class="container text-center mt-3">
+        <div class="row justify-content-center">
+            <div class="col-4"></div>
+            <div class="col-4">
+                <h2>Статистика по рассылкам</h2>
+            </div>
+            <div class="col-4"></div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="table-responsive small">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Тема сообщения</th>
+                    <th>Описание рассылки</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th>Ответ сервера</th>
+                    {% if request.user.is_superuser %}
+                    <th>Создал</th>
+                    {% endif %}
+                </tr>
+                </thead>
+
+                {% for object in object_list %}
+                <tr>
+                    <td>{{ object.sending.message.subject }}</td>
+                    <td>{{ object.sending.message.message_body|truncatechars:30 }}</td>
+                    <td>{{ object.date_attempt}}</td>
+                    <td>{{ object.status_attempt}}</td>
+                    <td>{{ object.answer}}</td>
+                    {% if request.user.is_superuser %}
+                    <td>{{ object.sending.owner }}</td>
+                    {% endif %}
+
+                </tr>
+                {% endfor%}
+            </table>
+
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</div>
+
+<p></p>
+<div style="text-align: center; margin-top: 0px; margin-bottom: 30px;">
+  <a class="btn btn-primary " button style="width: 540px; color: white; padding: 10px 10px; border: none; border-radius: 4px; cursor: pointer" href="{% url 'mailing:home' %}">На главную</a>
+
+</div>
+{% endblock %}}
