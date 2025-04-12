@@ -20,6 +20,7 @@ keyring==25.6.0
 more-itertools==10.6.0
 msgpack==1.1.0
 packaging==24.2
+pillow==11.1.0
 pkginfo==1.12.0
 platformdirs==4.3.7
 poetry==2.0.1
@@ -29,6 +30,7 @@ pycparser==2.22
 pyproject_hooks==1.2.0
 python-dotenv==1.0.1
 RapidFuzz==3.11.0
+redis==5.2.1
 requests==2.32.3
 requests-toolbelt==1.0.0
 shellingham==1.5.4

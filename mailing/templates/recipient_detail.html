@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+<title>Получатель рассылки</title>
+{% block content %}
+<p></p>
+<h3 style="margin-left: 500px;">Получатель {{recipient.id}}</h3>
+
+
+        <div class="col">
+          <div class="card shadow-sm">
+              <div class="card-body">
+                <p class="card-text">Email получателя: {{ object.email }}</p>
+                <p class="card-text">ФИО получателя: {{ object.name }}</p>
+                <p class="card-text">Комментарий: {{ object.comment }}</p>
+                <p class="card-text">Активный: {{ object.is_active }} </p>
+                <p class="card-text">Отправитель: {{ object.owner }} </p>
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group">
+                    <a href="{% url 'mailing:recipient_edit' object.pk %}" class="btn btn-secondary">Редактировать</a>
+                    <a href="{% url 'mailing:recipient_delete' object.pk %}" class="btn btn-danger">Удалить</a>
+                    <a class="btn btn-primary" role="button" href="{% url 'mailing:recipient_list' %}">Вернуться к списку получателей</a>
+                  </div>
+
+                </div>
+              </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}l>
